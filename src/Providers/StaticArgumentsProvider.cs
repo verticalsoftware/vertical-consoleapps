@@ -1,31 +1,28 @@
-using System;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Vertical.ConsoleApplications.Logging;
 
 namespace Vertical.ConsoleApplications.Providers
 {
-    /// <summary>
-    /// An arguments provider
-    /// </summary>
-    public class StaticArgumentsProvider : IArgumentProvider
+    public class StaticArgumentsProvider : ICommandProvider
     {
-        private readonly ILogger logger = LogManager.CreateLogger<StaticArgumentsProvider>();
         private readonly string[] arguments;
 
         /// <summary>
-        /// Creates a new instance of this type.
+        /// Creates a new instance 
         /// </summary>
-        /// <param name="arguments">Arguments to execute.</param>
+        /// <param name="logger">Logger</param>
+        /// <param name="arguments">Arguments to send to the command pipeline</param>
         public StaticArgumentsProvider(string[] arguments)
         {
-            this.arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
+            this.arguments = arguments;
         }
         
         /// <inheritdoc />
-        public Task ExecuteInvocationsAsync(Func<string[], Task> invoke)
+        public Task ExecuteCommandsAsync(Func<string[], Task> asyncInvoke, CancellationToken cancellationToken)
         {
-            return invoke(arguments);
+            return asyncInvoke(arguments);
         }
     }
 }
