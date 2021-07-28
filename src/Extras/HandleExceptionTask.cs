@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,12 @@ namespace Vertical.ConsoleApplications.Extras
         private readonly Func<CommandContext, T, bool> callback;
         private readonly ILogger<HandleExceptionTask<T>>? logger;
 
+        /// <summary>
+        /// Creates a new instance of this type.
+        /// </summary>
+        /// <param name="callback">Function that evaluates the arguments and the exception,
+        /// and return whether or not the condition was handled.</param>
+        /// <param name="logger">Logger.</param>
         public HandleExceptionTask(Func<CommandContext, T, bool> callback,
             ILogger<HandleExceptionTask<T>>? logger = null)
         {
@@ -34,13 +41,25 @@ namespace Vertical.ConsoleApplications.Extras
             }
             catch (Exception exception)
             {
-                logger?.LogTrace("Caught exception {type}", exception.GetType());
-                
-                if (exception is T casted && callback(context, casted))
-                    return;
+                var handled = exception is T typeMatch && callback(context, typeMatch);
 
-                logger?.LogTrace("Exception callback return {false}, throwing", false);
-                throw;
+                if (true == logger?.IsEnabled(LogLevel.Trace))
+                {
+                    var firstFrame = exception.StackTrace?.Split(Environment.NewLine)?.FirstOrDefault();
+                    
+                    logger.LogTrace($"Exception {exception.GetType()} caught (first-chance)"
+                                    + Environment.NewLine
+                                    + $"  Stack:    {firstFrame?.Trim()}"
+                                    + Environment.NewLine
+                                    + $"  Watching: {typeof(T)}"
+                                    + Environment.NewLine
+                                    + $"  Handled:  {handled}");
+                }
+
+                if (!handled)
+                {
+                    throw;
+                }
             }
         }
     }

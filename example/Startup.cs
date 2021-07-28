@@ -40,15 +40,12 @@ namespace Vertical.ConsoleApps.Example
             // Enable services for command routing
             services.AddCommandRouting();
 
-            services.AddLogging(logging =>
-            {
-                logging
-                    .ClearProviders()
-                    .AddSerilog(new LoggerConfiguration()
-                        .MinimumLevel.Verbose()
-                        .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}{Exception}")
-                        .CreateLogger());
-            });
+            services.AddLogging(logging => logging
+                .SetMinimumLevel(LogLevel.Trace)
+                .ClearProviders()
+                .AddConsole()
+                .AddFilter("Microsoft.Hosting", LogLevel.Warning)
+                .AddFilter("Microsoft.Extensions.Hosting", LogLevel.Warning));
         }
 
         public void Configure(ApplicationBuilder app)

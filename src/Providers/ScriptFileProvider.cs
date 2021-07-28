@@ -70,7 +70,7 @@ namespace Vertical.ConsoleApplications.Providers
             }
             catch (DirectoryNotFoundException)
             {
-                logger.LogTrace("Could not find file '{path}', optional = {optional}", path, optional);
+                logger.LogTrace("Could not find path '{path}', optional = {optional}", path, optional);
                 if (!optional) { throw; }
             }
             catch (FileNotFoundException)

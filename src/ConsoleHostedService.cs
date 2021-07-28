@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -71,6 +70,8 @@ namespace Vertical.ConsoleApplications
         /// <inheritdoc />
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            Console.WriteLine();
+            
             logger.LogTrace("Stopping console host");
             
             shutdownCancellationTokenSource.Cancel();
