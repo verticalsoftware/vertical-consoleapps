@@ -27,13 +27,17 @@ namespace Vertical.ConsoleApplications
                               ?? "development";
 
             return new HostBuilder()
+                
                 .ConfigureAppConfiguration(configuration => configuration
                     .AddJsonFile(Path.Combine(contentRoot, "appsettings.json"), optional: true)
                     .AddJsonFile(Path.Combine(contentRoot, $"appsettings.{environment}.json"), optional: true))
+                
                 .ConfigureServices(services =>
                 {
                     services.Configure<EntryArguments>(options => options.Arguments = args);
+                    services.AddHostedService<ConsoleHostedService>();
                 })
+                
                 .ConfigureLogging(logging => logging
                     .SetMinimumLevel(LogLevel.Information)
                     .AddConsole()

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Vertical.ConsoleApplications.Routing;
+using Vertical.ConsoleApplications.Pipeline;
 using Vertical.Pipelines;
 
-namespace Vertical.ConsoleApplications.Pipeline
+namespace Vertical.ConsoleApplications.Routing
 {
     public class RouteCommandTask : IPipelineTask<CommandContext>
     {
@@ -24,7 +23,7 @@ namespace Vertical.ConsoleApplications.Pipeline
 
             if (!routed)
             {
-                throw new InvalidOperationException("Could not route");
+                throw new RouteNotFoundException(context.Arguments);
             }
 
             await next.InvokeAsync(context, cancellationToken);

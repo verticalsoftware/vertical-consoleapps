@@ -1,12 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Vertical.ConsoleApplications.Extensions
 {
-    internal static class Strings
+    internal static class Arguments
     {
-        internal static IEnumerable<string> ToArgumentsArray(this string? str)
+        /// <summary>
+        /// Combines
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
+        public static string Combine(params string?[] arguments)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var argument in arguments.Where(arg => !string.IsNullOrWhiteSpace(arg)))
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(' ');
+                }
+
+                builder.Append(argument!.Trim());
+            }
+            
+            return builder.ToString();
+        }
+        
+        /// <summary>
+        /// Splits a string into an arguments array.
+        /// </summary>
+        /// <param name="str">String to split</param>
+        /// <returns>String array</returns>
+        public static string[] GetEscapedArguments(this string? str) => str.EnumerateArguments().ToArray();
+        
+        private static IEnumerable<string> EnumerateArguments(this string? str)
         {
             if (string.IsNullOrWhiteSpace(str))
                 yield break;

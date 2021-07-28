@@ -12,7 +12,7 @@ namespace Vertical.ConsoleApplications
         /// <param name="services">Services collection</param>
         /// <param name="builder">Object used to construct the provider chain</param>
         /// <returns><see cref="IServiceCollection"/></returns>
-        public static IServiceCollection ConfigureProviders(this IServiceCollection services,
+        public static IServiceCollection ConfigureCommandProviders(this IServiceCollection services,
             Action<ProviderBuilder> builder)
         {
             builder(new ProviderBuilder(services));

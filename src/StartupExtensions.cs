@@ -12,6 +12,8 @@ namespace Vertical.ConsoleApplications
         {
             hostBuilder.ConfigureServices((context, services) =>
             {
+                // We'll build a service provider to get at the configuration
+                // and the startup type
                 var provider = new ServiceCollection()
                     .AddSingleton(context.Configuration)
                     .AddSingleton<T>()
