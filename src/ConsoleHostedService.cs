@@ -2,43 +2,48 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Providers;
+using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications
 {
     public class ConsoleHostedService : IHostedService
     {
-        private readonly ILogger<ConsoleHostedService> logger;
-        private readonly IHostApplicationLifetime hostApplicationLifetime;
-        private readonly IEnumerable<ICommandProvider> commandProviders;
-        private readonly IPipelineOrchestrator pipelineOrchestrator;
-        private readonly CancellationTokenSource shutdownCancellationTokenSource = new();
-        private Task runProvidersTask = default!;
+        private readonly ILogger<ConsoleHostedService> _logger;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
+        private readonly PipelineDelegate<ArgumentsContext> _pipelineDelegate;
+        private readonly IEnumerable<IArgumentsProvider> _argumentsProviders;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly CancellationTokenSource _shutdownCancellationTokenSource = new();
+        private Task _runProvidersTask = default!;
 
         public ConsoleHostedService(ILogger<ConsoleHostedService> logger,
             IHostApplicationLifetime hostApplicationLifetime,
-            IEnumerable<ICommandProvider> commandProviders,
-            IPipelineOrchestrator pipelineOrchestrator)
+            PipelineDelegate<ArgumentsContext> pipelineDelegate,
+            IEnumerable<IArgumentsProvider> argumentsProviders,
+            IServiceProvider serviceProvider)
         {
-            this.logger = logger;
-            this.hostApplicationLifetime = hostApplicationLifetime;
-            this.commandProviders = commandProviders;
-            this.pipelineOrchestrator = pipelineOrchestrator;
+            _logger = logger;
+            _hostApplicationLifetime = hostApplicationLifetime;
+            _pipelineDelegate = pipelineDelegate;
+            _argumentsProviders = argumentsProviders;
+            _serviceProvider = serviceProvider;
         }
-        
+
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            logger.LogTrace("Starting console host");
+            _logger.LogTrace("Starting console host");
 
-            var shutdownToken = shutdownCancellationTokenSource.Token;
+            var shutdownToken = _shutdownCancellationTokenSource.Token;
 
-            hostApplicationLifetime.ApplicationStarted.Register(() =>
+            _hostApplicationLifetime.ApplicationStarted.Register(() =>
             {
-                runProvidersTask = Task.Run(() => InvokeCommandProvidersAsync(shutdownToken), shutdownToken);
+                _runProvidersTask = Task.Run(() => InvokeCommandProvidersAsync(shutdownToken), shutdownToken);
             });
 
             return Task.CompletedTask;
@@ -46,24 +51,13 @@ namespace Vertical.ConsoleApplications
 
         private async Task InvokeCommandProvidersAsync(CancellationToken cancellationToken)
         {
-            foreach (var commandProvider in commandProviders)
+            foreach (var provider in _argumentsProviders)
             {
-                await commandProvider.ExecuteCommandsAsync(arguments => HandleProviderInvocation(
-                    arguments, 
-                    cancellationToken), 
-                cancellationToken);
-            }
-        }
-
-        private async Task HandleProviderInvocation(string[] arguments, CancellationToken cancellationToken)
-        {
-            try
-            {
-                await pipelineOrchestrator.ExecutePipelineAsync(arguments, cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception, "Unhandled error occurred in the command pipeline");
+                await provider.InvokeArgumentsAsync(async (args, ct) =>
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    await _pipelineDelegate(new ArgumentsContext(args, _serviceProvider, ct));
+                }, cancellationToken);
             }
         }
 
@@ -72,11 +66,11 @@ namespace Vertical.ConsoleApplications
         {
             Console.WriteLine();
             
-            logger.LogTrace("Stopping console host");
+            _logger.LogTrace("Stopping console host");
             
-            shutdownCancellationTokenSource.Cancel();
+            _shutdownCancellationTokenSource.Cancel();
 
-            await runProvidersTask;
+            await _runProvidersTask;
         }
     }
 }
