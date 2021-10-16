@@ -15,7 +15,7 @@ namespace Vertical.ConsoleApplications
         /// <returns><see cref="IHostBuilder"/></returns>
         public static IHostBuilder CreateDefault()
         {
-            return new HostBuilder()
+            return Host.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
                     services.AddHostedService<ConsoleHostedService>();

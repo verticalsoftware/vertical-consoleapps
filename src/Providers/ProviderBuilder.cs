@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using Microsoft.Extensions.Logging;
+using Vertical.ConsoleApplications.IO;
 
 namespace Vertical.ConsoleApplications.Providers
 {
@@ -110,6 +111,10 @@ namespace Vertical.ConsoleApplications.Providers
         /// Adds arguments that are received through interactive input.
         /// </summary>
         /// <returns>A reference to this instance.</returns>
-        public ProviderBuilder AddInteractiveConsole() => AddProvider<InteractiveArgumentsProvider>();
+        public ProviderBuilder AddInteractiveConsole(string prompt = "> ") => AddProvider(services =>
+            new InteractiveArgumentsProvider(
+                services.GetRequiredService<IConsoleAdapter>(),
+                prompt,
+                services.GetService<ILogger<InteractiveArgumentsProvider>>()));
     }
 }

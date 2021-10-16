@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications;
+using Vertical.ConsoleApplications.Pipeline;
 
 namespace BasicExample
 {
@@ -22,7 +23,7 @@ namespace BasicExample
                     p.AddEntryArguments(args);
 
                     // Receives argument from user input
-                    p.AddInteractiveConsole();
+                    p.AddInteractiveConsole("Command > ");
                 })
                 .ConfigureServices(services =>
                 {
@@ -33,29 +34,25 @@ namespace BasicExample
                         builder.AddFilter("Microsoft.*", LogLevel.Critical);
                     });
                 })
-                .Configure((services, app) =>
+                .Configure<ILogger<Program>>((app, logger) =>
                 {
+                    // When the user types "exit" or "quit", stop the application
+                    app.UseExitCommand("exit", "quit");
+
+                    // Simply print the arguments back to the console
                     app.Use(next => request =>
                     {
-                        var logger = services.GetService<ILogger<Program>>();
-                        var args = request.Arguments;
-                        
-                        Console.WriteLine("Arguments received:");
-                        logger.LogDebug("Arguments received ({count}): {arguments}", 
-                            args.Count,
-                            args);
+                        var requestArgs = request.Arguments;
 
-                        foreach (var arg in args)
-                        {
-                            Console.WriteLine($"   {arg}");
-                        }
+                        logger.LogDebug("Arguments received ({count}): {arguments}",
+                            requestArgs.Count,
+                            requestArgs);
 
                         return next(request);
                     });
-                })
-                .Build();
+                });
 
-            return host.RunAsync();
+            return host.RunConsoleAsync();
         }
     }
 }

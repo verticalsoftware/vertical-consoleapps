@@ -31,22 +31,26 @@ namespace Vertical.ConsoleApplications
         /// </summary>
         /// <param name="hostBuilder">Host builder</param>
         /// <param name="configure">
-        /// A delegate that uses the given <see cref="IPipelineBuilder{TContext}"/> to
-        /// construct an ordered sequence of middleware that transforms or handles
-        /// arguments.
+        /// A delegate that uses the given <see cref="IPipelineBuilder{TContext}"/> and
+        /// a service provider to construct an ordered sequence of middleware that
+        /// transforms or handles arguments.
         /// </param>
         /// <returns>A reference to this instance.</returns>
         public static IHostBuilder Configure(
             this IHostBuilder hostBuilder,
-            Action<IPipelineBuilder<ArgumentsContext>> configure)
+            Action<ApplicationPipelineBuilder> configure)
         {
-            return hostBuilder.ConfigureServices(services =>
+            hostBuilder.ConfigureServices(services =>
             {
-                var pipelineBuilder = new PipelineBuilder<ArgumentsContext>();
-                configure(pipelineBuilder);
+                services.AddSingleton(provider =>
+                {
+                    var pipelineBuilder = new ApplicationPipelineBuilder(provider);
+                    configure(pipelineBuilder);
 
-                services.AddSingleton(pipelineBuilder.Build());
+                    return pipelineBuilder.Build();
+                });
             });
+            return hostBuilder;
         }
 
         /// <summary>
@@ -55,24 +59,33 @@ namespace Vertical.ConsoleApplications
         /// <param name="hostBuilder">Host builder</param>
         /// <param name="configure">
         /// A delegate that uses the given <see cref="IPipelineBuilder{TContext}"/> and
-        /// a service provider to construct an ordered sequence of middleware that
+        /// a realized service to construct an ordered sequence of middleware that
         /// transforms or handles arguments.
         /// </param>
+        /// <typeparam name="TService">
+        /// The type of service to realize from the built application service
+        /// provider.
+        /// </typeparam>
         /// <returns>A reference to this instance.</returns>
-        public static IHostBuilder Configure(
+        public static IHostBuilder Configure<TService>(
             this IHostBuilder hostBuilder,
-            Action<IServiceProvider, IPipelineBuilder<ArgumentsContext>> configure)
+            Action<ApplicationPipelineBuilder, TService> configure)
+            where TService : class
         {
-            return hostBuilder.ConfigureServices(services =>
+            hostBuilder.ConfigureServices(services =>
             {
                 services.AddSingleton(provider =>
                 {
-                    var pipelineBuilder = new PipelineBuilder<ArgumentsContext>();
-                    configure(provider, pipelineBuilder);
+                    var pipelineBuilder = new ApplicationPipelineBuilder(provider);
+                    var service = provider.GetRequiredService<TService>();
+
+                    configure(pipelineBuilder, service);
 
                     return pipelineBuilder.Build();
                 });
             });
+
+            return hostBuilder;
         }
     }
 }

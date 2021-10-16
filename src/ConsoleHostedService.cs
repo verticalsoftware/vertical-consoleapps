@@ -18,8 +18,6 @@ namespace Vertical.ConsoleApplications
         private readonly PipelineDelegate<ArgumentsContext> _pipelineDelegate;
         private readonly IEnumerable<IArgumentsProvider> _argumentsProviders;
         private readonly IServiceProvider _serviceProvider;
-        private readonly CancellationTokenSource _shutdownCancellationTokenSource = new();
-        private Task _runProvidersTask = default!;
 
         public ConsoleHostedService(ILogger<ConsoleHostedService> logger,
             IHostApplicationLifetime hostApplicationLifetime,
@@ -39,38 +37,44 @@ namespace Vertical.ConsoleApplications
         {
             _logger.LogTrace("Starting console host");
 
-            var shutdownToken = _shutdownCancellationTokenSource.Token;
-
             _hostApplicationLifetime.ApplicationStarted.Register(() =>
             {
-                _runProvidersTask = Task.Run(() => InvokeCommandProvidersAsync(shutdownToken), shutdownToken);
+                Task.Run(async () =>
+                {
+                    using var cancelTokenSource = new CancellationTokenSource();
+                    
+                    try
+                    {
+                        await InvokeCommandProvidersAsync(cancelTokenSource);
+                    }
+                    finally
+                    {
+                        _hostApplicationLifetime.StopApplication();
+                    }
+                });
             });
 
             return Task.CompletedTask;
         }
 
-        private async Task InvokeCommandProvidersAsync(CancellationToken cancellationToken)
+        private async Task InvokeCommandProvidersAsync(CancellationTokenSource cts)
         {
             foreach (var provider in _argumentsProviders)
             {
                 await provider.InvokeArgumentsAsync(async (args, ct) =>
                 {
                     using var scope = _serviceProvider.CreateScope();
-                    await _pipelineDelegate(new ArgumentsContext(args, _serviceProvider, ct));
-                }, cancellationToken);
+                    
+                    await _pipelineDelegate(new ArgumentsContext(args, _serviceProvider, cts));
+                    
+                }, cts.Token);
             }
         }
 
         /// <inheritdoc />
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine();
-            
-            _logger.LogTrace("Stopping console host");
-            
-            _shutdownCancellationTokenSource.Cancel();
-
-            await _runProvidersTask;
+            return Task.CompletedTask;
         }
     }
 }
