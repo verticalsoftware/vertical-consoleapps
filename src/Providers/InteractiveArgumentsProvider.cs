@@ -42,7 +42,6 @@ namespace Vertical.ConsoleApplications.Providers
                 // Flush off-thread loggers
                 await Task.Delay(250, CancellationToken.None);
                 
-                // Display the prompt
                 _consoleAdapter.Write(_prompt);
 
                 var input = _consoleAdapter.ReadLine();

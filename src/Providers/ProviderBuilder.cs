@@ -8,6 +8,7 @@ using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.IO;
+using Vertical.ConsoleApplications.Utilities;
 
 namespace Vertical.ConsoleApplications.Providers
 {
@@ -28,12 +29,8 @@ namespace Vertical.ConsoleApplications.Providers
         /// </summary>
         /// <param name="args">Arguments to add.</param>
         /// <returns>A reference to this instance.</returns>
-        public ProviderBuilder AddArguments(IReadOnlyList<string> args)
-        {
-            return AddProvider(sp => new StaticArgumentsProvider(
-                args,
-                sp.GetService<ILogger<StaticArgumentsProvider>>()));
-        }
+        public ProviderBuilder AddArguments(IReadOnlyList<string> args) =>
+            AddArguments(args, "static");
 
         /// <summary>
         /// Adds entry arguments to the provider order.
@@ -45,7 +42,20 @@ namespace Vertical.ConsoleApplications.Providers
         /// for clarity. 
         /// </remarks>
         public ProviderBuilder AddEntryArguments(IReadOnlyList<string> args) =>
-            AddArguments(args);
+            AddArguments(args, "entry");
+
+        /// <summary>
+        /// Adds arguments parsed from the value of an environment variable.
+        /// </summary>
+        /// <param name="variableKey">The environment variable.</param>
+        /// <returns>A reference to this instance.</returns>
+        public ProviderBuilder AddEnvironmentVariableArguments(string variableKey)
+        {
+            var value = Environment.GetEnvironmentVariable(variableKey);
+            var args = Arguments.SplitFromString(value ?? string.Empty);
+            
+            return AddArguments(args, $"environment variable {variableKey}");
+        }
 
         /// <summary>
         /// Adds a <see cref="IArgumentsProvider"/> implementation to the provider order.
@@ -79,22 +89,24 @@ namespace Vertical.ConsoleApplications.Providers
         /// <returns>A reference to this instance.</returns>
         public ProviderBuilder AddScript(string filePath)
         {
-            return AddProvider(sp => new ScriptFileArgumentsProvider(
+            return AddProvider(services => new ScriptFileArgumentsProvider(
                 () => Task.FromResult<IEnumerable<string>>(new[] { filePath }),
-                sp.GetService<ILogger<ScriptFileArgumentsProvider>>()));
+                services.GetService<ILogger<ScriptFileArgumentsProvider>>()));
         }
 
         /// <summary>
         /// Adds the arguments that are found in files matched using a base path
-        /// and glob pattern.
+        /// and match pattern.
         /// </summary>
         /// <param name="basePath">The base path to search for script files.</param>
         /// <param name="pattern">A glob pattern used to match files.</param>
         /// <returns>A reference to this instance.</returns>
-        public ProviderBuilder AddScriptsPath(string basePath, string pattern)
+        public ProviderBuilder AddScripts(string basePath, string pattern)
         {
-            Task<IEnumerable<string>> GetScriptFiles()
+            Task<IEnumerable<string>> GetScriptFiles(ILogger? logger)
             {
+                logger?.LogTrace("Discovering scripts in {path}/{pattern}", basePath, pattern);
+                
                 var matcher = new Matcher().AddInclude(pattern);
                 var directoryInfo = new DirectoryInfo(basePath);
                 var results = matcher.Execute(new DirectoryInfoWrapper(directoryInfo));
@@ -103,7 +115,7 @@ namespace Vertical.ConsoleApplications.Providers
             }
 
             return AddProvider(services => new ScriptFileArgumentsProvider(
-                GetScriptFiles,
+                () => GetScriptFiles(services.GetService<ILogger<ProviderBuilder>>()),
                 services.GetService<ILogger<ScriptFileArgumentsProvider>>()));
         }
 
@@ -116,5 +128,13 @@ namespace Vertical.ConsoleApplications.Providers
                 services.GetRequiredService<IConsoleAdapter>(),
                 prompt,
                 services.GetService<ILogger<InteractiveArgumentsProvider>>()));
+        
+        private ProviderBuilder AddArguments(IReadOnlyList<string> args, string context)
+        {
+            return AddProvider(sp => new StaticArgumentsProvider(
+                args,
+                context,
+                sp.GetService<ILogger<StaticArgumentsProvider>>()));
+        }
     }
 }

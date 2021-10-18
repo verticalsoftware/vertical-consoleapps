@@ -12,19 +12,20 @@ namespace BasicExample
     {
         static Task Main(string[] args)
         {
-            var host = ConsoleHostBuilder
-                .CreateDefault()
+            var host = ConsoleHostBuilder.CreateDefault()
+
+                // Providers feed arguments to the application. The application
+                // executes them in the order in which they are registered here.
                 .ConfigureProviders(p =>
                 {
-                    // Providers feed arguments to the application. The application
-                    // receives them in the order in which they are registered here.
-
                     // Add entry arguments
                     p.AddEntryArguments(args);
 
                     // Receives argument from user input
                     p.AddInteractiveConsole("Command > ");
                 })
+                
+                // Make services available to handler components
                 .ConfigureServices(services =>
                 {
                     services.AddLogging(builder =>
@@ -34,10 +35,18 @@ namespace BasicExample
                         builder.AddFilter("Microsoft.*", LogLevel.Critical);
                     });
                 })
+                
+                // Configure the pipeline that processes command arguments
                 .Configure<ILogger<Program>>((app, logger) =>
                 {
                     // When the user types "exit" or "quit", stop the application
                     app.UseExitCommand("exit", "quit");
+                    
+                    // Replace $ENVIRONMENT_VARIABLES in arguments
+                    app.UseEnvironmentVariables();
+                    
+                    // Replace $SPECIAL_FOLDER paths
+                    app.UseSpecialFolders();
 
                     // Simply print the arguments back to the console
                     app.Use(next => request =>

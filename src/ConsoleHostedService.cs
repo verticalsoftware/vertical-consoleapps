@@ -13,17 +13,18 @@ namespace Vertical.ConsoleApplications
 {
     public class ConsoleHostedService : IHostedService
     {
-        private readonly ILogger<ConsoleHostedService> _logger;
+        private readonly ILogger<ConsoleHostedService>? _logger;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly PipelineDelegate<ArgumentsContext> _pipelineDelegate;
         private readonly IEnumerable<IArgumentsProvider> _argumentsProviders;
         private readonly IServiceProvider _serviceProvider;
 
-        public ConsoleHostedService(ILogger<ConsoleHostedService> logger,
+        public ConsoleHostedService(
             IHostApplicationLifetime hostApplicationLifetime,
             PipelineDelegate<ArgumentsContext> pipelineDelegate,
             IEnumerable<IArgumentsProvider> argumentsProviders,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            ILogger<ConsoleHostedService>? logger = null)
         {
             _logger = logger;
             _hostApplicationLifetime = hostApplicationLifetime;
@@ -42,10 +43,14 @@ namespace Vertical.ConsoleApplications
                 Task.Run(async () =>
                 {
                     using var cancelTokenSource = new CancellationTokenSource();
-                    
+
                     try
                     {
                         await InvokeCommandProvidersAsync(cancelTokenSource);
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger?.LogError(exception, "Unhandled exception occurred");
                     }
                     finally
                     {

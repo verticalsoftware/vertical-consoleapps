@@ -17,7 +17,7 @@ namespace Vertical.ConsoleApplications.Pipeline
         {
             CancellationTokenSource = cancellationTokenSource;
             ServiceProvider = serviceProvider;
-            Arguments = arguments;
+            Arguments = new List<string>(arguments);
         }
         
         private IServiceProvider ServiceProvider { get; }
@@ -27,7 +27,7 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// <summary>
         /// Gets the application arguments.
         /// </summary>
-        public IReadOnlyList<string> Arguments { get; }
+        public List<string> Arguments { get; }
 
         /// <summary>
         /// Gets a token that can be observed for cancellation requests.
