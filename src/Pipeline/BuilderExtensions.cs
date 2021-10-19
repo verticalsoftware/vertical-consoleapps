@@ -2,11 +2,10 @@ using System;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications.Pipeline
 {
-    public static class ApplicationPipelineBuilderExtensions
+    public static class BuilderExtensions
     {
         /// <summary>
         /// Inserts middleware to the argument pipeline that listens
@@ -104,24 +103,6 @@ namespace Vertical.ConsoleApplications.Pipeline
             Func<string, string> replaceFunction)
         {
             return builder.UseTokenReplacement("custom replacement", replaceFunction);
-        }
-
-        /// <summary>
-        /// Inserts middleware to the argument pipeline that routes commands and associated
-        /// arguments to specific logic handlers.
-        /// </summary>
-        /// <param name="builder">Application builder</param>
-        /// <param name="configure">
-        /// A delegate that receives the routing configuration builder.
-        /// </param>
-        /// <returns>A reference to the pipeline builder.</returns>
-        public static ApplicationPipelineBuilder UseCommandRouting(
-            this ApplicationPipelineBuilder builder,
-            Action<CommandRoutingBuilder> configure)
-        {
-            
-            
-            return builder;
         }
 
         private static ApplicationPipelineBuilder UseTokenReplacement(
