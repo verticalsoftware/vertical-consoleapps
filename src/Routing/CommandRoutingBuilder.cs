@@ -1,19 +1,22 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Vertical.ConsoleApplications.Middleware;
 using Vertical.ConsoleApplications.Pipeline;
 
 namespace Vertical.ConsoleApplications.Routing
 {
-    using HandlerDelegate = System.Func<string[], System.Threading.CancellationToken, System.Threading.Tasks.Task>;
+    using HandlerDelegate = Func<string[], CancellationToken, Task>;
 
-    public class CommandRoutingBuilder : IDisposable
+    /// <summary>
+    /// Used to configure how commands are routed.
+    /// </summary>
+    public class CommandRoutingBuilder
     {
         private readonly ApplicationPipelineBuilder _applicationBuilder;
-        private readonly Dictionary<string, HandlerDelegate> _handlerMap = new();
 
         internal CommandRoutingBuilder(ApplicationPipelineBuilder applicationBuilder)
         {
@@ -21,22 +24,38 @@ namespace Vertical.ConsoleApplications.Routing
         }
 
         /// <summary>
-        /// Registers a delegate that handles a specific command implementation.
+        /// Registers middleware that uses maps between commands and delegate
+        /// functions to handle implementation logic.
         /// </summary>
-        /// <param name="command">Command to match</param>
-        /// <param name="handler">Handler implementation</param>
-        /// <returns>A reference to this instance</returns>
-        public CommandRoutingBuilder MapCommand(string command, HandlerDelegate handler)
+        /// <param name="maps"></param>
+        /// <returns>A reference to this instance.</returns>
+        public CommandRoutingBuilder MapCommands(params (string command, HandlerDelegate handler)[] maps)
         {
-            _handlerMap[command] = handler;
+            if (maps.Length == 0)
+                return this;
+
+            _applicationBuilder.UseMiddleware<CommandDelegateMiddleware>(
+                maps.ToDictionary(t => t.command, t => t.handler),
+                _applicationBuilder.ServiceProvider.GetService<ILogger<CommandDelegateMiddleware>>());
+
             return this;
         }
 
-        void IDisposable.Dispose()
+        /// <summary>
+        /// Registers middleware that uses implementations of 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public CommandRoutingBuilder MapHandlers()
         {
-            _applicationBuilder.UseMiddleware<CommandHandlerMiddleware>(
-                _handlerMap,
-                _applicationBuilder.ServiceProvider.GetService<ILogger<CommandHandlerMiddleware>>());
+            var router = _applicationBuilder.ServiceProvider.GetService<ICommandRouter>()
+                ??
+                throw new InvalidOperationException("Cannot map command handlers because the required routing "
+                                                    + "services are not registered. ");
+
+            _applicationBuilder.UseMiddleware<CommandRoutingMiddleware>(router);
+            
+            return this;
         }
     }
 }

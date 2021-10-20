@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Vertical.ConsoleApplications.Pipeline;
 using Vertical.Pipelines;
 
-namespace Vertical.ConsoleApplications.Pipeline
+namespace Vertical.ConsoleApplications.Middleware
 {
     internal class ExitCommandMiddleware
     {
@@ -40,8 +40,8 @@ namespace Vertical.ConsoleApplications.Pipeline
             if (args.Count == 1 && _exitCommands.Any(cmd => args[0] == cmd))
             {
                 _logger.LogTrace("Exit command received - signaling application stop");
-                
-                context.StopApplication();
+
+                context.RequestApplicationStop = true;
                 
                 return;
             }

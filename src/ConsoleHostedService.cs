@@ -69,8 +69,15 @@ namespace Vertical.ConsoleApplications
                 await provider.InvokeArgumentsAsync(async (args, ct) =>
                 {
                     using var scope = _serviceProvider.CreateScope();
+
+                    var context = new ArgumentsContext(args, _serviceProvider, ct);
                     
-                    await _pipelineDelegate(new ArgumentsContext(args, _serviceProvider, cts));
+                    await _pipelineDelegate(context);
+
+                    if (context.RequestApplicationStop)
+                    {
+                        cts.Cancel();
+                    }
                     
                 }, cts.Token);
             }

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Vertical.ConsoleApplications.Middleware;
 using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications.Pipeline
@@ -122,9 +123,7 @@ namespace Vertical.ConsoleApplications.Pipeline
             this ApplicationPipelineBuilder builder,
             Action<CommandRoutingBuilder> configure)
         {
-            using var routingBuilder = new CommandRoutingBuilder(builder);
-
-            configure(routingBuilder);
+            configure(new CommandRoutingBuilder(builder));
             
             return builder;
         }

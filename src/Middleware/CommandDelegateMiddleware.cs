@@ -4,19 +4,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Vertical.ConsoleApplications.Pipeline;
 using Vertical.Pipelines;
 
-namespace Vertical.ConsoleApplications.Pipeline
+namespace Vertical.ConsoleApplications.Middleware
 {
     /// <summary>
     /// Middleware component that facilitates the handling of commands
     /// using delegate callback.
     /// </summary>
-    internal class CommandHandlerMiddleware
+    internal class CommandDelegateMiddleware
     {
         private readonly PipelineDelegate<ArgumentsContext> _next;
         private readonly IDictionary<string, Func<string[], CancellationToken, Task>> _handlerMap;
-        private readonly ILogger<CommandHandlerMiddleware>? _logger;
+        private readonly ILogger<CommandDelegateMiddleware>? _logger;
 
         /// <summary>
         /// Creates a new instance
@@ -24,9 +25,9 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// <param name="next">The next middleware function</param>
         /// <param name="handlerMap">A dictionary of command names to handler delegates</param>
         /// <param name="logger">Logger</param>
-        public CommandHandlerMiddleware(PipelineDelegate<ArgumentsContext> next,
+        public CommandDelegateMiddleware(PipelineDelegate<ArgumentsContext> next,
             IDictionary<string, Func<string[], CancellationToken, Task>> handlerMap,
-            ILogger<CommandHandlerMiddleware>? logger = null)
+            ILogger<CommandDelegateMiddleware>? logger = null)
         {
             _next = next;
             _handlerMap = handlerMap;

@@ -12,7 +12,7 @@ namespace BasicExample
 {
     class Program
     {
-        static Task Main(string[] args)
+        static Task Main(string[] entryArgs)
         {
             var host = ConsoleHostBuilder.CreateDefault()
 
@@ -21,7 +21,7 @@ namespace BasicExample
                 .ConfigureProviders(p =>
                 {
                     // Add entry arguments
-                    p.AddEntryArguments(args);
+                    p.AddEntryArguments(entryArgs);
 
                     // Receives argument from user input
                     p.AddInteractiveConsole("Command > ");
@@ -36,6 +36,8 @@ namespace BasicExample
                         builder.AddConsole();
                         builder.AddFilter("Microsoft.*", LogLevel.Critical);
                     });
+
+                    services.AddCommandHandlers();
                 })
                 
                 // Configure the pipeline that processes command arguments
@@ -49,16 +51,7 @@ namespace BasicExample
                     
                     // Replace $SPECIAL_FOLDER paths
                     app.UseSpecialFolders();
-
-                    app.UseCommands(cmd =>
-                    {
-                        cmd.MapCommand("help", (_, cancel) =>
-                        {
-                            logger.LogInformation("Help requested!");
-                            return Task.CompletedTask;
-                        });
-                    });
-
+                    
                     // Simply print the arguments back to the console
                     app.Use(next => request =>
                     {
@@ -70,8 +63,23 @@ namespace BasicExample
 
                         return next(request);
                     });
-                    
-                    
+
+                    app.UseCommands(cmd =>
+                    {
+                        cmd.MapCommands(
+                            ("help", (_, cancel) =>
+                            {
+                                Console.WriteLine("Help requested!");
+                                return Task.CompletedTask;
+                            }),
+                            ("echo", (args, cancel) =>
+                            {
+                                Console.WriteLine(string.Join(" ", args));
+                                return Task.CompletedTask;
+                            }));
+
+                        cmd.MapHandlers();
+                    });
                 });
 
             return host.RunConsoleAsync();

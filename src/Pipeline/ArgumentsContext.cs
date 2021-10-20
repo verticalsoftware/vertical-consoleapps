@@ -13,16 +13,14 @@ namespace Vertical.ConsoleApplications.Pipeline
     {
         internal ArgumentsContext(string[] arguments,
             IServiceProvider serviceProvider,
-            CancellationTokenSource cancellationTokenSource)
+            CancellationToken cancellationToken)
         {
-            CancellationTokenSource = cancellationTokenSource;
             ServiceProvider = serviceProvider;
             Arguments = new List<string>(arguments);
+            CancellationToken = cancellationToken;
         }
         
         private IServiceProvider ServiceProvider { get; }
-        
-        private CancellationTokenSource CancellationTokenSource { get; }
 
         /// <summary>
         /// Gets the application arguments.
@@ -32,15 +30,12 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// <summary>
         /// Gets a token that can be observed for cancellation requests.
         /// </summary>
-        public CancellationToken CancellationToken => CancellationTokenSource.Token;
-
+        public CancellationToken CancellationToken { get; }
+        
         /// <summary>
-        /// Signals for the application to exit.
+        /// Gets or sets whether to request application stoppage.
         /// </summary>
-        public void StopApplication()
-        {
-            CancellationTokenSource.Cancel();
-        }
+        public bool RequestApplicationStop { get; set; }
 
         /// <inheritdoc />
         public override string ToString() => string.Join(' ', Arguments);

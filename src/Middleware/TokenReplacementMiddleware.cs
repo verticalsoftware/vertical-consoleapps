@@ -1,9 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Vertical.ConsoleApplications.Pipeline;
 using Vertical.Pipelines;
 
-namespace Vertical.ConsoleApplications.Pipeline
+namespace Vertical.ConsoleApplications.Middleware
 {
     internal class TokenReplacementMiddleware
     {
