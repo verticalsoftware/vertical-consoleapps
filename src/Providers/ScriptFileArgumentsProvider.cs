@@ -23,7 +23,7 @@ namespace Vertical.ConsoleApplications.Providers
         
         /// <inheritdoc />
         public async Task InvokeArgumentsAsync(
-            Func<IReadOnlyList<string>, CancellationToken, Task> handler, 
+            Func<string[], CancellationToken, Task> handler, 
             CancellationToken cancellationToken)
         {
             foreach (var path in await _pathFactory())
@@ -38,7 +38,7 @@ namespace Vertical.ConsoleApplications.Providers
 
         private async Task InvokeArgumentsForPathAsync(
             string path, 
-            Func<IReadOnlyList<string>, CancellationToken, Task> handler, 
+            Func<string[], CancellationToken, Task> handler, 
             CancellationToken cancellationToken)
         {
             using var scope = _logger?.BeginScope(Path.GetFileName(path));
@@ -49,9 +49,10 @@ namespace Vertical.ConsoleApplications.Providers
             {
                 var args = Arguments.SplitFromString(line);
 
-                if (args.Count == 0)
+                if (args.Length == 0)
                     continue;
                 
+                // ReSharper disable once CoVariantArrayConversion
                 _logger?.LogTrace("Invoke static arguments: {values}", args);
 
                 await handler(args, cancellationToken);

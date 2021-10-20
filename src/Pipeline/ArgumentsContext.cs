@@ -11,7 +11,7 @@ namespace Vertical.ConsoleApplications.Pipeline
     /// </summary>
     public class ArgumentsContext : IApplicationServices
     {
-        internal ArgumentsContext(IReadOnlyList<string> arguments,
+        internal ArgumentsContext(string[] arguments,
             IServiceProvider serviceProvider,
             CancellationTokenSource cancellationTokenSource)
         {

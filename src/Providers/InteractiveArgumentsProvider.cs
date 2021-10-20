@@ -32,7 +32,7 @@ namespace Vertical.ConsoleApplications.Providers
         
         /// <inheritdoc />
         public async Task InvokeArgumentsAsync(
-            Func<IReadOnlyList<string>, CancellationToken, Task> handler, 
+            Func<string[], CancellationToken, Task> handler, 
             CancellationToken cancellationToken)
         {
             _logger.LogTrace("Entering interactive console provider");

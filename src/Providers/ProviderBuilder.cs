@@ -29,7 +29,7 @@ namespace Vertical.ConsoleApplications.Providers
         /// </summary>
         /// <param name="args">Arguments to add.</param>
         /// <returns>A reference to this instance.</returns>
-        public ProviderBuilder AddArguments(IReadOnlyList<string> args) =>
+        public ProviderBuilder AddArguments(string[] args) =>
             AddArguments(args, "static");
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Vertical.ConsoleApplications.Providers
         /// This method is simply a synonym for <see cref="AddArguments"/>, and added
         /// for clarity. 
         /// </remarks>
-        public ProviderBuilder AddEntryArguments(IReadOnlyList<string> args) =>
+        public ProviderBuilder AddEntryArguments(string[] args) =>
             AddArguments(args, "entry");
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Vertical.ConsoleApplications.Providers
                 prompt,
                 services.GetService<ILogger<InteractiveArgumentsProvider>>()));
         
-        private ProviderBuilder AddArguments(IReadOnlyList<string> args, string context)
+        private ProviderBuilder AddArguments(string[] args, string context)
         {
             return AddProvider(sp => new StaticArgumentsProvider(
                 args,

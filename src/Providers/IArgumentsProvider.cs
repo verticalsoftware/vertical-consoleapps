@@ -21,7 +21,7 @@ namespace Vertical.ConsoleApplications.Providers
         /// </param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>Task</returns>
-        Task InvokeArgumentsAsync(Func<IReadOnlyList<string>, CancellationToken, Task> handler,
+        Task InvokeArgumentsAsync(Func<string[], CancellationToken, Task> handler,
             CancellationToken cancellationToken);
     }
 }

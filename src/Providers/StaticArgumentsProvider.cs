@@ -11,7 +11,7 @@ namespace Vertical.ConsoleApplications.Providers
     /// </summary>
     internal class StaticArgumentsProvider : IArgumentsProvider
     {
-        private readonly IReadOnlyList<string> _arguments;
+        private readonly string[] _arguments;
         private readonly string _context;
         private readonly ILogger<StaticArgumentsProvider>? _logger;
 
@@ -23,7 +23,7 @@ namespace Vertical.ConsoleApplications.Providers
         /// <param name="logger">Logger instance</param>
         /// <exception cref="ArgumentNullException"><paramref name="arguments"/> is null.</exception>
         public StaticArgumentsProvider(
-            IReadOnlyList<string> arguments,
+            string[] arguments,
             string context,
             ILogger<StaticArgumentsProvider>? logger = default)
         {
@@ -37,12 +37,12 @@ namespace Vertical.ConsoleApplications.Providers
 
         /// <inheritdoc />
         public Task InvokeArgumentsAsync(
-            Func<IReadOnlyList<string>, CancellationToken, Task> handler, 
+            Func<string[], CancellationToken, Task> handler, 
             CancellationToken cancellationToken)
         {
             _logger?.LogTrace("Invoke {context} arguments ({count}): {values}", 
                 _context,
-                _arguments.Count, 
+                _arguments.Length, 
                 _arguments);
 
             return handler(_arguments, cancellationToken);

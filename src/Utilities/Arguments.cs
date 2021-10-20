@@ -5,7 +5,7 @@ namespace Vertical.ConsoleApplications.Utilities
 {
     internal static class Arguments
     {
-        internal static IReadOnlyList<string> SplitFromString(string str)
+        internal static string[] SplitFromString(string str)
         {
             var arguments = new List<string>(16);
             var span = str.AsSpan();
@@ -42,8 +42,8 @@ namespace Vertical.ConsoleApplications.Utilities
             }
 
             Push(arguments, ref span, span.Length);
-            
-            return arguments;
+
+            return arguments.ToArray();
         } 
     }
 }

@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -47,6 +50,15 @@ namespace BasicExample
                     // Replace $SPECIAL_FOLDER paths
                     app.UseSpecialFolders();
 
+                    app.UseCommands(cmd =>
+                    {
+                        cmd.MapCommand("help", (_, cancel) =>
+                        {
+                            logger.LogInformation("Help requested!");
+                            return Task.CompletedTask;
+                        });
+                    });
+
                     // Simply print the arguments back to the console
                     app.Use(next => request =>
                     {
@@ -58,6 +70,8 @@ namespace BasicExample
 
                         return next(request);
                     });
+                    
+                    
                 });
 
             return host.RunConsoleAsync();

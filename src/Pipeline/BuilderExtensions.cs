@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications.Pipeline
 {
@@ -103,6 +107,26 @@ namespace Vertical.ConsoleApplications.Pipeline
             Func<string, string> replaceFunction)
         {
             return builder.UseTokenReplacement("custom replacement", replaceFunction);
+        }
+
+        /// <summary>
+        /// Inserts middleware to the argument pipeline that uses delegates to handle
+        /// command implementations.
+        /// </summary>
+        /// <param name="builder">Application builder</param>
+        /// <param name="configure">
+        /// An delegate used to construct route handlers for the application.
+        /// </param>
+        /// <returns>A reference to the pipeline builder</returns>
+        public static ApplicationPipelineBuilder UseCommands(
+            this ApplicationPipelineBuilder builder,
+            Action<CommandRoutingBuilder> configure)
+        {
+            using var routingBuilder = new CommandRoutingBuilder(builder);
+
+            configure(routingBuilder);
+            
+            return builder;
         }
 
         private static ApplicationPipelineBuilder UseTokenReplacement(

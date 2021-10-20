@@ -9,7 +9,7 @@ namespace Vertical.ConsoleApplications.Pipeline
     internal class ExitCommandMiddleware
     {
         private readonly PipelineDelegate<ArgumentsContext> _next;
-        private readonly IReadOnlyList<string> _exitCommands;
+        private readonly string[] _exitCommands;
         private readonly ILogger<ExitCommandMiddleware>? _logger;
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// <param name="logger">Logger</param>
         public ExitCommandMiddleware(
             PipelineDelegate<ArgumentsContext> next,
-            IReadOnlyList<string> exitCommands,
+            string[] exitCommands,
             ILogger<ExitCommandMiddleware>? logger = null)
         {
             _next = next;
