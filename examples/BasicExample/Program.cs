@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications;
-using Vertical.ConsoleApplications.Pipeline;
 
 namespace BasicExample
 {
@@ -24,7 +21,7 @@ namespace BasicExample
                     p.AddEntryArguments(entryArgs);
 
                     // Receives argument from user input
-                    p.AddInteractiveConsole("Command > ");
+                    p.AddInteractiveConsole(() => Console.Write("Command > "));
                 })
                 
                 // Make services available to handler components
@@ -64,9 +61,9 @@ namespace BasicExample
                         return next(request);
                     });
 
-                    app.UseCommands(cmd =>
+                    app.UseCommands(router =>
                     {
-                        cmd.MapCommands(
+                        router.MapCommands(
                             ("help", (_, cancel) =>
                             {
                                 Console.WriteLine("Help requested!");
@@ -78,7 +75,7 @@ namespace BasicExample
                                 return Task.CompletedTask;
                             }));
 
-                        cmd.MapHandlers();
+                        router.RouteToHandlers();
                     });
                 });
 

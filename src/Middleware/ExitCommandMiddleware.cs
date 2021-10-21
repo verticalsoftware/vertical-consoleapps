@@ -39,10 +39,10 @@ namespace Vertical.ConsoleApplications.Middleware
 
             if (args.Count == 1 && _exitCommands.Any(cmd => args[0] == cmd))
             {
-                _logger.LogTrace("Exit command received - signaling application stop");
+                _logger.LogTrace("Exit command received - requesting application stop");
 
-                context.RequestApplicationStop = true;
-                
+                context.StopApplication();
+
                 return;
             }
 

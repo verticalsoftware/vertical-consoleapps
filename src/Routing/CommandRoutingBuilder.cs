@@ -46,7 +46,7 @@ namespace Vertical.ConsoleApplications.Routing
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public CommandRoutingBuilder MapHandlers()
+        public CommandRoutingBuilder RouteToHandlers()
         {
             var router = _applicationBuilder.ServiceProvider.GetService<ICommandRouter>()
                 ??

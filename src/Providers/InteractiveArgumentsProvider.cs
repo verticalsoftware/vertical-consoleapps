@@ -10,8 +10,8 @@ namespace Vertical.ConsoleApplications.Providers
 {
     internal class InteractiveArgumentsProvider : IArgumentsProvider
     {
-        private readonly IConsoleAdapter _consoleAdapter;
-        private readonly string _prompt;
+        private readonly IConsoleInputAdapter _consoleInputAdapter;
+        private readonly Action _prompt;
         private readonly ILogger<InteractiveArgumentsProvider>? _logger;
 
         /// <summary>
@@ -19,20 +19,20 @@ namespace Vertical.ConsoleApplications.Providers
         /// </summary>
         /// <param name="prompt">The prompt to display before allowing using input</param>
         /// <param name="logger">Logger</param>
-        /// <param name="consoleAdapter">Console adapter</param>
+        /// <param name="consoleInputAdapter">Console adapter</param>
         public InteractiveArgumentsProvider(
-            IConsoleAdapter consoleAdapter,
-            string prompt = "",
+            IConsoleInputAdapter consoleInputAdapter,
+            Action prompt,
             ILogger<InteractiveArgumentsProvider>? logger = null)
         {
-            _consoleAdapter = consoleAdapter;
+            _consoleInputAdapter = consoleInputAdapter;
             _prompt = prompt;
             _logger = logger;
         }
         
         /// <inheritdoc />
         public async Task InvokeArgumentsAsync(
-            Func<string[], CancellationToken, Task> handler, 
+            Func<string[], Task> handler, 
             CancellationToken cancellationToken)
         {
             _logger.LogTrace("Entering interactive console provider");
@@ -41,14 +41,14 @@ namespace Vertical.ConsoleApplications.Providers
             {
                 // Flush off-thread loggers
                 await Task.Delay(250, CancellationToken.None);
-                
-                _consoleAdapter.Write(_prompt);
 
-                var input = _consoleAdapter.ReadLine();
+                _prompt();
+
+                var input = _consoleInputAdapter.ReadLine();
 
                 var args = Arguments.SplitFromString(input ?? string.Empty);
 
-                await handler(args, cancellationToken);
+                await handler(args);
             }
         }
     }

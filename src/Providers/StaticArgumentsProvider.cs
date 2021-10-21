@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -37,7 +36,7 @@ namespace Vertical.ConsoleApplications.Providers
 
         /// <inheritdoc />
         public Task InvokeArgumentsAsync(
-            Func<string[], CancellationToken, Task> handler, 
+            Func<string[], Task> handler, 
             CancellationToken cancellationToken)
         {
             _logger?.LogTrace("Invoke {context} arguments ({count}): {values}", 
@@ -45,7 +44,7 @@ namespace Vertical.ConsoleApplications.Providers
                 _arguments.Length, 
                 _arguments);
 
-            return handler(_arguments, cancellationToken);
+            return handler(_arguments);
         }
     }
 }

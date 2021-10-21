@@ -1,16 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Middleware;
+using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Routing;
 
-namespace Vertical.ConsoleApplications.Pipeline
+namespace Vertical.ConsoleApplications
 {
-    public static class BuilderExtensions
+    public static class ApplicationBuilderExtensions
     {
         /// <summary>
         /// Inserts middleware to the argument pipeline that listens

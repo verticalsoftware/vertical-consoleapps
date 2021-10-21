@@ -19,7 +19,7 @@ namespace Vertical.ConsoleApplications
                 .ConfigureServices(services =>
                 {
                     services.AddHostedService<ConsoleHostedService>();
-                    services.AddSingleton<IConsoleAdapter, DefaultConsoleAdapter>();
+                    services.AddSingleton<IConsoleInputAdapter, DefaultConsoleInputAdapter>();
                 });
         }
     }

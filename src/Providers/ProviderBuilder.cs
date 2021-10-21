@@ -122,11 +122,13 @@ namespace Vertical.ConsoleApplications.Providers
         /// <summary>
         /// Adds arguments that are received through interactive input.
         /// </summary>
+        /// <param name="prompt">A delegate that is executed before reading from the console
+        /// input adapter</param>
         /// <returns>A reference to this instance.</returns>
-        public ProviderBuilder AddInteractiveConsole(string prompt = "> ") => AddProvider(services =>
+        public ProviderBuilder AddInteractiveConsole(Action? prompt = null) => AddProvider(services =>
             new InteractiveArgumentsProvider(
-                services.GetRequiredService<IConsoleAdapter>(),
-                prompt,
+                services.GetRequiredService<IConsoleInputAdapter>(),
+                prompt ?? (() => Console.Write("> ")),
                 services.GetService<ILogger<InteractiveArgumentsProvider>>()));
         
         private ProviderBuilder AddArguments(string[] args, string context)

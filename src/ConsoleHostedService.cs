@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,20 +65,17 @@ namespace Vertical.ConsoleApplications
 
         private async Task InvokeCommandProvidersAsync(CancellationTokenSource cts)
         {
-            foreach (var provider in _argumentsProviders)
+            var cancellationToken = cts.Token;
+            
+            foreach (var provider in _argumentsProviders.TakeWhile(_ => !cancellationToken.IsCancellationRequested))
             {
-                await provider.InvokeArgumentsAsync(async (args, ct) =>
+                await provider.InvokeArgumentsAsync(async args =>
                 {
                     using var scope = _serviceProvider.CreateScope();
 
-                    var context = new ArgumentsContext(args, _serviceProvider, ct);
+                    var context = new ArgumentsContext(args, _serviceProvider, cts);
                     
                     await _pipelineDelegate(context);
-
-                    if (context.RequestApplicationStop)
-                    {
-                        cts.Cancel();
-                    }
                     
                 }, cts.Token);
             }

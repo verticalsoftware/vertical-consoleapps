@@ -2,7 +2,7 @@
 
 namespace Vertical.ConsoleApplications.IO
 {
-    internal class DefaultConsoleAdapter : IConsoleAdapter
+    internal class DefaultConsoleInputAdapter : IConsoleInputAdapter
     {
         /// <inheritdoc />
         public string? ReadLine()
@@ -14,18 +14,6 @@ namespace Vertical.ConsoleApplications.IO
         public ConsoleKeyInfo ReadKey()
         {
             return Console.ReadKey();
-        }
-
-        /// <inheritdoc />
-        public void Write(string str)
-        {
-            Console.Write(str);
-        }
-
-        /// <inheritdoc />
-        public void WriteLine(string str)
-        {
-            Console.WriteLine(str);
         }
     }
 }
