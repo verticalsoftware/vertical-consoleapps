@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Vertical.ConsoleApplications.IO
 {
+    [ExcludeFromCodeCoverage]
     internal class DefaultConsoleInputAdapter : IConsoleInputAdapter
     {
         /// <inheritdoc />

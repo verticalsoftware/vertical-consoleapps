@@ -29,8 +29,8 @@ namespace Vertical.ConsoleApplications.Middleware
             IDictionary<string, Func<string[], CancellationToken, Task>> handlerMap,
             ILogger<CommandDelegateMiddleware>? logger = null)
         {
-            _next = next;
-            _handlerMap = handlerMap;
+            _next = next ?? throw new ArgumentNullException(nameof(next));
+            _handlerMap = handlerMap ?? throw new ArgumentNullException(nameof(handlerMap));
             _logger = logger;
         }
 
@@ -45,7 +45,7 @@ namespace Vertical.ConsoleApplications.Middleware
 
             if (args.Count == 0)
             {
-                _logger?.LogDebug("Cannot determine handler, argument count = 0");
+                _logger?.LogDebug("Cannot determine handler (no command/argument count = 0)");
                 return;
             }
 

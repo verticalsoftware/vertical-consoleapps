@@ -5,7 +5,7 @@ using Vertical.ConsoleApplications.Routing;
 
 namespace BasicExample
 {
-    [CommandHandler("backup")]
+    [CommandHandler("test")]
     public class MyHandler : ICommandHandler
     {
         /// <inheritdoc />
