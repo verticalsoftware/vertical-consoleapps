@@ -31,7 +31,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="5.0.0" />
-    <PackageReference Include="vertical-commandline" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>

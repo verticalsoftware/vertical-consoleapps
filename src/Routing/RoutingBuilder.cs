@@ -11,6 +11,11 @@ namespace Vertical.ConsoleApplications.Routing
 {
     public class RoutingBuilder
     {
+        private static readonly ConstructorInfo ControllerConstructorInfo =
+            typeof(ControllerHandler<>)
+                .GetConstructors()
+                .First(ctor => ctor.GetParameters().Length == 2);
+        
         internal RoutingBuilder(IServiceCollection applicationServices)
         {
             ApplicationServices = applicationServices;
@@ -66,8 +71,18 @@ namespace Vertical.ConsoleApplications.Routing
             return this;
         }
 
+        /// <summary>
+        /// Maps the route or routes in a command controller implementation.
+        /// </summary>
+        /// <param name="type">Controller type</param>
+        /// <returns>A reference to this instance.</returns>        
         public RoutingBuilder MapController(Type type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+            
             var methods = type
                 .GetMethods()
                 .Select(methodInfo => new
@@ -79,10 +94,10 @@ namespace Vertical.ConsoleApplications.Routing
                 {
                     var method = item.method;
                     
-                    if (method.ReturnType != typeof(Task))
-                        return false;
-
                     if (item.command == null)
+                        return false;
+                    
+                    if (method.ReturnType != typeof(Task))
                         return false;
 
                     var parameters = method.GetParameters();
@@ -104,10 +119,49 @@ namespace Vertical.ConsoleApplications.Routing
 
             foreach (var methodInfo in methods)
             {
+                // Create handler delegate
+                var controller = Expression.Parameter(type);
+                var context = Expression.Parameter(typeof(CommandContext));
+                var cancelToken = Expression.Parameter(typeof(CancellationToken));
+                var handle = Expression.Call(controller, methodInfo.method, context, cancelToken);
+                var lambda = Expression.Lambda(
+                    handle,
+                    controller,
+                    context,
+                    cancelToken);
                 
+                // Create an implementation factory
+                var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
+                var handlerType = typeof(ControllerHandler<>).MakeGenericType(type);
+                var getController = Expression.Convert( 
+                    Expression.Call(
+                    serviceProvider,
+                    typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService))!,
+                    Expression.Constant(type)),
+                    type);
+                var constructor = handlerType
+                    .GetConstructors()
+                    .First(ctor => ctor.GetParameters().Length == 2);
+                var activator = Expression.New(
+                    constructor,
+                    getController,
+                    lambda);
+                var factory = Expression.Lambda<Func<IServiceProvider, ICommandHandler>>(
+                        activator,
+                        serviceProvider)
+                    .Compile();
+
+                MapHandler(methodInfo.command!.Route, sp => factory(sp));
             }
 
             return this;
         }
+
+        /// <summary>
+        /// Maps the route or routes in a command controller implementation.
+        /// </summary>
+        /// <typeparam name="T">Controller type</typeparam>
+        /// <returns>A reference to this instance.</returns>
+        public RoutingBuilder MapController<T>() where T : class => MapController(typeof(T));
     }
 }

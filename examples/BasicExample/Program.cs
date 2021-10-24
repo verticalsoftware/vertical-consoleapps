@@ -64,6 +64,8 @@ namespace BasicExample
                                 context.Arguments[1]);
                             return Task.CompletedTask;
                         });
+
+                        router.MapController(typeof(MyController));
                     });
                 });
 
