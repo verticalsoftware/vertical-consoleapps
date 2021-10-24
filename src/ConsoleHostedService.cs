@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Providers;
-using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications
 {
@@ -16,28 +15,28 @@ namespace Vertical.ConsoleApplications
     {
         private readonly ILogger<ConsoleHostedService>? _logger;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
-        private readonly PipelineDelegate<ArgumentsContext> _pipelineDelegate;
         private readonly IEnumerable<IArgumentsProvider> _argumentsProviders;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IContextDataFactory _contextDataFactory;
 
         public ConsoleHostedService(
             IHostApplicationLifetime hostApplicationLifetime,
-            PipelineDelegate<ArgumentsContext> pipelineDelegate,
             IEnumerable<IArgumentsProvider> argumentsProviders,
             IServiceProvider serviceProvider,
+            IContextDataFactory contextDataFactory,
             ILogger<ConsoleHostedService>? logger = null)
         {
             _logger = logger;
             _hostApplicationLifetime = hostApplicationLifetime;
-            _pipelineDelegate = pipelineDelegate;
             _argumentsProviders = argumentsProviders;
             _serviceProvider = serviceProvider;
+            _contextDataFactory = contextDataFactory;
         }
 
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogTrace("Starting console host");
+            _logger?.LogInformation("Starting console host");
 
             _hostApplicationLifetime.ApplicationStarted.Register(() =>
             {
@@ -57,7 +56,7 @@ namespace Vertical.ConsoleApplications
                     {
                         _hostApplicationLifetime.StopApplication();
                     }
-                });
+                }, cancellationToken);
             });
 
             return Task.CompletedTask;
@@ -73,18 +72,19 @@ namespace Vertical.ConsoleApplications
                 {
                     using var scope = _serviceProvider.CreateScope();
 
-                    var context = new ArgumentsContext(args, _serviceProvider, cts);
-                    
-                    await _pipelineDelegate(context);
-                    
+                    var middlewareFactory = scope.ServiceProvider.GetRequiredService<IMiddlewareFactory>();
+
+                    var pipeline = middlewareFactory.Create();
+
+                    var context = new CommandContext(args, _contextDataFactory.CreateContextData(args));
+
+                    await pipeline(context, cancellationToken);
+
                 }, cts.Token);
             }
         }
 
         /// <inheritdoc />
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

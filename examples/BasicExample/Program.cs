@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,70 +13,57 @@ namespace BasicExample
         static Task Main(string[] entryArgs)
         {
             var host = ConsoleHostBuilder.CreateDefault()
-
-                // Providers feed arguments to the application. The application
-                // executes them in the order in which they are registered here.
-                .ConfigureProviders(p =>
-                {
-                    // Add entry arguments
-                    p.AddEntryArguments(entryArgs);
-
-                    // Receives argument from user input
-                    p.AddInteractiveConsole(() => Console.Write("Command > "));
-                })
                 
-                // Make services available to handler components
                 .ConfigureServices(services =>
                 {
-                    services.AddLogging(builder =>
-                    {
-                        builder.SetMinimumLevel(LogLevel.Trace);
-                        builder.AddConsole();
-                        builder.AddFilter("Microsoft.*", LogLevel.Critical);
-                    });
+                    // Silence Microsoft logging
+                    services.AddLogging(logging => logging
+                        .AddFilter("Microsoft.*", LogLevel.Critical)
+                        .SetMinimumLevel(LogLevel.Trace));
 
-                    services.AddCommandHandlers();
+                    services.AddCommandRouting();
+                })
+
+                .ConfigureProviders(providers =>
+                {
+                    //providers.AddEntryArguments(entryArgs);
+                    
+                    // Let user type input to our program
+                    providers.AddInteractiveConsole(() => Console.Write("Type something or 'exit' > "));
                 })
                 
-                // Configure the pipeline that processes command arguments
-                .Configure<ILogger<Program>>((app, logger) =>
+                .Configure(app =>
                 {
-                    // When the user types "exit" or "quit", stop the application
-                    app.UseExitCommand("exit", "quit");
+                    app.UseExitCommands(new[]{"exit", "quit"});
+
+                    app.UseEnvironmentVariableTokens();
+
+                    app.UseSpecialFolderTokens();
                     
-                    // Replace $ENVIRONMENT_VARIABLES in arguments
-                    app.UseEnvironmentVariables();
-                    
-                    // Replace $SPECIAL_FOLDER paths
-                    app.UseSpecialFolders();
-                    
-                    // Simply print the arguments back to the console
-                    app.Use(next => request =>
+                    app.Use(async (context, next, cancelToken) =>
                     {
-                        var requestArgs = request.Arguments;
+                        await Task.Delay(250, CancellationToken.None);
+                        
+                        Console.WriteLine(string.Join(' ', context.Arguments));
 
-                        logger.LogDebug("Arguments received ({count}): {arguments}",
-                            requestArgs.Count,
-                            requestArgs);
-
-                        return next(request);
+                        await next(context, cancelToken);
                     });
 
-                    app.UseCommands(router =>
+                    app.UseRouting(router =>
                     {
-                        router.MapCommands(
-                            ("help", (_, cancel) =>
-                            {
-                                Console.WriteLine("Help requested!");
-                                return Task.CompletedTask;
-                            }),
-                            ("echo", (args, cancel) =>
-                            {
-                                Console.WriteLine(string.Join(" ", args));
-                                return Task.CompletedTask;
-                            }));
+                        router.Map("help", (context, ct) =>
+                        {
+                            Console.WriteLine("You need help!");
+                            return Task.CompletedTask;
+                        });
 
-                        router.RouteToHandlers();
+                        router.Map("backup", (context, ct) =>
+                        {
+                            Console.WriteLine("You want to backup {0} to {1}",
+                                context.Arguments[0],
+                                context.Arguments[1]);
+                            return Task.CompletedTask;
+                        });
                     });
                 });
 

@@ -1,25 +1,21 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Vertical.ConsoleApplications.Pipeline;
 
 namespace Vertical.ConsoleApplications.Routing
 {
     /// <summary>
-    /// Represents the interface of an object that handles the logic of a
-    /// command.
+    /// Represents an object that handles command requests for a specific argument
+    /// set.
     /// </summary>
     public interface ICommandHandler
     {
         /// <summary>
-        /// When implemented by a class, performs the application logic for
-        /// the command.
+        /// When implemented by a class, handles the routed command request.
         /// </summary>
-        /// <param name="arguments">
-        /// The arguments contextual to the command (command removed).
-        /// </param>
-        /// <param name="cancellationToken">
-        /// A token that cna be observed for cancellation requests.
-        /// </param>
-        /// <returns>Task that completes when the command finished execution.</returns>
-        Task HandleAsync(string[] arguments, CancellationToken cancellationToken);
+        /// <param name="context">Command context</param>
+        /// <param name="cancellationToken">Token that can be observed for cancellation requests</param>
+        /// <returns>Task</returns>
+        Task HandleAsync(CommandContext context, CancellationToken cancellationToken);
     }
 }

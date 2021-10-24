@@ -8,6 +8,9 @@ using Vertical.ConsoleApplications.Utilities;
 
 namespace Vertical.ConsoleApplications.Providers
 {
+    /// <summary>
+    /// Reads argument values from script files.
+    /// </summary>
     internal class ScriptFileArgumentsProvider : IArgumentsProvider
     {
         private readonly Func<Task<IEnumerable<string>>> _pathFactory;
@@ -47,7 +50,7 @@ namespace Vertical.ConsoleApplications.Providers
 
             foreach (var line in content)
             {
-                var args = Arguments.SplitFromString(line);
+                var args = ArgumentHelpers.SplitFromString(line);
 
                 if (args.Length == 0)
                     continue;

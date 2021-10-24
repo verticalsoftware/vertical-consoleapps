@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -26,7 +25,7 @@ namespace Vertical.ConsoleApplications.Providers
             ILogger<InteractiveArgumentsProvider>? logger = null)
         {
             _consoleInputAdapter = consoleInputAdapter;
-            _prompt = prompt;
+            _prompt = prompt ?? throw new ArgumentNullException(nameof(prompt));
             _logger = logger;
         }
         
@@ -35,7 +34,7 @@ namespace Vertical.ConsoleApplications.Providers
             Func<string[], Task> handler, 
             CancellationToken cancellationToken)
         {
-            _logger.LogTrace("Entering interactive console provider");
+            _logger?.LogDebug("Entering interactive console provider");
             
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -46,7 +45,7 @@ namespace Vertical.ConsoleApplications.Providers
 
                 var input = _consoleInputAdapter.ReadLine();
 
-                var args = Arguments.SplitFromString(input ?? string.Empty);
+                var args = ArgumentHelpers.SplitFromString(input ?? string.Empty);
 
                 await handler(args);
             }

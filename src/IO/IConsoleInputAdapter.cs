@@ -3,7 +3,7 @@
 namespace Vertical.ConsoleApplications.IO
 {
     /// <summary>
-    /// Abstracts input and output.
+    /// Abstracts input from a stream.
     /// </summary>
     public interface IConsoleInputAdapter
     {

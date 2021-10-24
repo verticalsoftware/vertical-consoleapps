@@ -1,52 +1,38 @@
-using System.Linq;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
-using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications.Middleware
 {
-    internal class ExitCommandMiddleware
+    internal class ExitCommandMiddleware : IMiddleware
     {
-        private readonly PipelineDelegate<ArgumentsContext> _next;
-        private readonly string[] _exitCommands;
+        private readonly string[] _commands;
+        private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly ILogger<ExitCommandMiddleware>? _logger;
 
-        /// <summary>
-        /// Creates a new instance of this type.
-        /// </summary>
-        /// <param name="next">The next delegate.</param>
-        /// <param name="exitCommands">Exit commands.</param>
-        /// <param name="logger">Logger</param>
-        public ExitCommandMiddleware(
-            PipelineDelegate<ArgumentsContext> next,
-            string[] exitCommands,
+        internal ExitCommandMiddleware(string[] commands,
+            IHostApplicationLifetime applicationLifetime,
             ILogger<ExitCommandMiddleware>? logger = null)
         {
-            _next = next;
-            _exitCommands = exitCommands;
+            _commands = commands;
+            _applicationLifetime = applicationLifetime;
             _logger = logger;
         }
-
-        /// <summary>
-        /// Invokes the middleware.
-        /// </summary>
-        /// <param name="context">Arguments context</param>
-        /// <returns>Task</returns>
-        public async Task InvokeAsync(ArgumentsContext context)
+        
+        /// <inheritdoc />
+        public Task InvokeAsync(CommandContext context, PipelineDelegate next, CancellationToken cancellationToken)
         {
-            var args = context.Arguments;
-
-            if (args.Count == 1 && _exitCommands.Any(cmd => args[0] == cmd))
+            if (_commands.Any(cmd => cmd == context.OriginalFormat))
             {
-                _logger.LogTrace("Exit command received - requesting application stop");
-
-                context.StopApplication();
-
-                return;
+                _logger?.LogDebug("Exit command matched, requesting application stop");
+                
+                _applicationLifetime.StopApplication();
             }
 
-            await _next(context);
+            return next(context, cancellationToken);
         }
     }
 }

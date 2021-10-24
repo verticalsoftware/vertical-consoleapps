@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
@@ -9,51 +10,90 @@ namespace Vertical.ConsoleApplications.Routing
 {
     internal class CommandRouter : ICommandRouter
     {
-        private readonly Dictionary<string, Func<IServiceProvider, ICommandHandler>> _handlerFactories;
+        private readonly List<RouteDescriptor> _routeDescriptors;
         private readonly ILogger<CommandRouter>? _logger;
+        private readonly IComparer<RouteDescriptor> _descriptorComparer = new RouteDescriptorComparer();
 
-        /// <summary>
-        /// Creates a new service of this type.
-        /// </summary>
-        /// <param name="handlerFactories">
-        /// A dictionary of factory methods that produce handler instances where the
-        /// key is a command.
-        /// </param>
-        /// <param name="logger">Logger</param>
-        public CommandRouter(Dictionary<string, Func<IServiceProvider, ICommandHandler>> handlerFactories,
-            ILogger<CommandRouter>? logger)
+        private sealed class RouteDescriptorComparer : IComparer<RouteDescriptor>
         {
-            _handlerFactories = handlerFactories;
-            _logger = logger;
+            /// <inheritdoc />
+            public int Compare(RouteDescriptor? x, RouteDescriptor? y)
+            {
+                return string.Compare(x?.Route, y?.Route, StringComparison.CurrentCulture);
+            }
         }
 
-        /// <inheritdoc />
-        public Task RouteAsync(IServiceProvider serviceProvider, 
-            ArgumentsContext context)
+        /// <summary>
+        /// Creates a new instance of this type.
+        /// </summary>
+        /// <param name="routeDescriptors">Route descriptors</param>
+        /// <param name="logger">Logger</param>
+        public CommandRouter(
+            IEnumerable<RouteDescriptor> routeDescriptors,
+            ILogger<CommandRouter>? logger = null)
         {
-            var arguments = context.Arguments;
+            _routeDescriptors = routeDescriptors
+                .OrderBy(dsc => dsc.Route)
+                .ToList();
             
-            if (arguments.Count == 0)
+            _logger = logger;
+        }
+        
+        /// <inheritdoc />
+        public Task RouteAsync(IServiceProvider serviceProvider,
+            CommandContext context, 
+            CancellationToken cancellationToken)
+        {
+            var route = context.OriginalFormat;
+            var handlerMatched = TryGetFactory(context.OriginalFormat, out var factory);
+
+            if (!handlerMatched)
             {
-                _logger?.LogTrace("Command routing unavailable (argument count =0)");
+                _logger.LogInformation("No matching handler for command route '{route}'", route);
                 return Task.CompletedTask;
             }
 
-            var command = arguments[0];
-
-            if (!_handlerFactories.TryGetValue(command, out var factory))
-            {
-                _logger?.LogDebug("No handler mapped for command '{command}'", command);
-                return Task.CompletedTask;
-            }
-
-            var handler = factory(serviceProvider);
+            var handler = factory!(serviceProvider);
             
-            _logger?.LogDebug("Routing command '{command}' to handler {handler}",
-                command,
+            _logger.LogInformation("Matched handler for command route '{route}' = {handler}",
+                route,
                 handler);
 
-            return handler.HandleAsync(arguments.Skip(1).ToArray(), context.CancellationToken);
+            var subContext = new CommandContext(
+                context.Arguments.Skip(1).ToArray(),
+                context.Data);
+
+            return handler.HandleAsync(subContext, cancellationToken);
+        }
+
+        private bool TryGetFactory(string route, out Func<IServiceProvider, ICommandHandler>? factory)
+        {
+            var matchDescriptor = new RouteDescriptor(route, default!);
+            var index = _routeDescriptors.BinarySearch(matchDescriptor, _descriptorComparer);
+            
+            factory = null;
+
+            if (index > -1)
+            {
+                factory = _routeDescriptors[index].ImplementationFactory;
+                return true;
+            }
+
+            for (var c = ~index; c > -1 && c < _routeDescriptors.Count; c--)
+            {
+                var descriptor = _routeDescriptors[c];
+
+                if (route.StartsWith(descriptor.Route))
+                {
+                    factory = descriptor.ImplementationFactory;
+                    return true;
+                }
+
+                if (route[0] > descriptor.Route[0])
+                    return false;
+            }
+
+            return false;
         }
     }
 }

@@ -52,7 +52,7 @@ namespace Vertical.ConsoleApplications.Providers
         public ProviderBuilder AddEnvironmentVariableArguments(string variableKey)
         {
             var value = Environment.GetEnvironmentVariable(variableKey);
-            var args = Arguments.SplitFromString(value ?? string.Empty);
+            var args = ArgumentHelpers.SplitFromString(value ?? string.Empty);
             
             return AddArguments(args, $"environment variable {variableKey}");
         }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications
@@ -10,106 +10,59 @@ namespace Vertical.ConsoleApplications
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds a command handler.
+        /// Adds a scoped context factory.
         /// </summary>
-        /// <param name="services">Service collection</param>
-        /// <param name="type">Handler implementation type</param>
-        /// <returns>The service collection</returns>
-        public static IServiceCollection AddCommandHandler(
-            this IServiceCollection services,
-            Type type)
+        /// <param name="serviceCollection">Service collection</param>
+        /// <typeparam name="T">Type of <see cref="IContextDataFactory"/></typeparam>
+        /// <returns>A reference to the given service collection</returns>
+        public static IServiceCollection AddContextFactory<T>(this IServiceCollection serviceCollection)
+            where T : class, IContextDataFactory
         {
-            return services.AddHandlerDescriptor(HandlerDescriptor.FromType(type));
+            serviceCollection.AddScoped<IContextDataFactory, T>();
+            return serviceCollection;
         }
 
         /// <summary>
-        /// Adds a command handler.
+        /// Adds a scoped context factory.
         /// </summary>
-        /// <param name="services">Service collection</param>
-        /// <param name="command">The command to associate with the handler</param>
-        /// <param name="type">Handler implementation type</param>
-        /// <returns>The service collection</returns>
-        public static IServiceCollection AddCommandHandler(
-            this IServiceCollection services,
-            string command,
-            Type type)
+        /// <param name="serviceCollection">Service collection</param>
+        /// <param name="implementationFactory">Factory method that creates the command context</param>
+        /// <typeparam name="T">Type of <see cref="IContextDataFactory"/></typeparam>
+        /// <returns>A reference to the given service collection</returns>
+        public static IServiceCollection AddContextFactory<T>(
+            this IServiceCollection serviceCollection,
+            Func<IServiceProvider, T> implementationFactory)
+            where T : IContextDataFactory
         {
-            return services.AddHandlerDescriptor(new HandlerDescriptor(type, command));
+            serviceCollection.AddScoped<IContextDataFactory>(sp => implementationFactory(sp));
+            return serviceCollection;
         }
 
         /// <summary>
-        /// Adds a command handler.
+        /// Adds a delegate used to create the <see cref="CommandContext"/> for each
+        /// request.
         /// </summary>
-        /// <param name="services">Service collection</param>
-        /// <typeparam name="T">Handler implementation type</typeparam>
-        /// <returns>The service collection</returns>
-        public static IServiceCollection AddCommandHandler<T>(this IServiceCollection services)
-            where T : ICommandHandler
-        {
-            return services.AddCommandHandler(typeof(T));
-        }
-
-        /// <summary>
-        /// Adds a command handler.
-        /// </summary>
-        /// <param name="services">Service collection</param>
-        /// <param name="command">The command to associate with the handler</param>
-        /// <typeparam name="T">Handler implementation type</typeparam>
-        /// <returns>The service collection</returns>
-        public static IServiceCollection AddCommandHandler<T>(this IServiceCollection services, string command)
-            where T : ICommandHandler
-        {
-            return services.AddCommandHandler(command, typeof(T));
-        }
-
-        /// <summary>
-        /// Adds all handlers found in the exported types of an assembly.
-        /// </summary>
-        /// <param name="services">Service collection</param>
-        /// <param name="assembly">
-        /// The assembly to scan. If this parameter is null, the calling assembly
-        /// is scanned.
+        /// <param name="serviceCollection">Service collection</param>
+        /// <param name="factory">
+        /// A delegate function that receives the arguments and returns the <see cref="CommandContext"/>
+        /// to introduce to the pipeline.
         /// </param>
-        /// <returns>The service collection</returns>
-        public static IServiceCollection AddCommandHandlers(this IServiceCollection services,
-            Assembly? assembly = null)
+        /// <returns>A reference to the given service collection</returns>
+        public static IServiceCollection AddContextFactory(
+            this IServiceCollection serviceCollection,
+            Func<string[], object?> factory)
         {
-            assembly ??= Assembly.GetCallingAssembly();
-
-            var types = assembly
-                .ExportedTypes
-                .Where(type => type.IsPublic
-                               && !type.IsAbstract
-                               && !type.IsInterface
-                               && typeof(ICommandHandler).IsAssignableFrom(type))
-                .ToArray();
-
-            foreach (var type in types)
-            {
-                services.AddCommandHandler(type);
-            }
-
-            return services;
+            return serviceCollection.AddScoped<IContextDataFactory>(_ => new ContextDataFactoryWrapper(factory));
         }
 
-        private static IServiceCollection AddHandlerDescriptor(
-            this IServiceCollection services,
-            HandlerDescriptor descriptor)
+        /// <summary>
+        /// Adds command routing services.
+        /// </summary>
+        /// <param name="serviceCollection">Service collection</param>
+        /// <returns>A reference to the given service collection</returns>
+        public static IServiceCollection AddCommandRouting(this IServiceCollection serviceCollection)
         {
-            services.TryAddSingleton(provider =>
-            {
-                var descriptors = provider.GetServices<HandlerDescriptor>();
-                
-                return descriptors.ToDictionary(
-                    dsc => dsc.Command,
-                    dsc => new Func<IServiceProvider, ICommandHandler>(sp => (ICommandHandler)
-                        sp.GetRequiredService(dsc.ImplementationType)));
-            });
-            services.TryAddSingleton<ICommandRouter, CommandRouter>();
-            services.AddSingleton(descriptor);
-            services.AddScoped(descriptor.ImplementationType);
-
-            return services;
+            return serviceCollection.AddSingleton<ICommandRouter, CommandRouter>();
         }
     }
 }

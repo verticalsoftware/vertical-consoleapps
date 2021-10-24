@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Vertical.ConsoleApplications.IO;
-using Vertical.ConsoleApplications.Pipeline;
-using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications
 {
