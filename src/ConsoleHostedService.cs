@@ -76,7 +76,9 @@ namespace Vertical.ConsoleApplications
 
                     var pipeline = middlewareFactory.Create();
 
-                    var context = new CommandContext(args, _contextDataFactory.CreateContextData(args));
+                    var context = new CommandContext(args,
+                        scope.ServiceProvider,
+                        _contextDataFactory.CreateContextData(args));
 
                     await pipeline(context, cancellationToken);
 

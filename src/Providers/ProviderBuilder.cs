@@ -49,7 +49,7 @@ namespace Vertical.ConsoleApplications.Providers
         /// </summary>
         /// <param name="variableKey">The environment variable.</param>
         /// <returns>A reference to this instance.</returns>
-        public ProviderBuilder AddEnvironmentVariableArguments(string variableKey)
+        public ProviderBuilder AddEnvironmentVariable(string variableKey)
         {
             var value = Environment.GetEnvironmentVariable(variableKey);
             var args = ArgumentHelpers.SplitFromString(value ?? string.Empty);

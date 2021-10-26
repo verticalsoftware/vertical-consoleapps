@@ -1,4 +1,8 @@
-﻿namespace Vertical.ConsoleApplications.Pipeline
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace Vertical.ConsoleApplications.Pipeline
 {
     /// <summary>
     /// Represents the context available to the argument pipeline.
@@ -9,10 +13,14 @@
         /// Creates a new instance of this type.
         /// </summary>
         /// <param name="arguments">Context arguments</param>
+        /// <param name="services">Request service provider</param>
         /// <param name="data">Gets additional data associated with the context</param>
-        public CommandContext(string[] arguments, object? data)
+        public CommandContext(string[] arguments,
+            IServiceProvider services,
+            object? data)
         {
             Arguments = arguments;
+            Services = services;
             Data = data;
             OriginalFormat = string.Join(' ', arguments);
         }
@@ -21,7 +29,17 @@
         /// Gets the context arguments.
         /// </summary>
         public string[] Arguments { get; }
-        
+
+        /// <summary>
+        /// Gets the request services.
+        /// </summary>
+        public IServiceProvider Services { get; }
+
+        /// <summary>
+        /// Gets the <see cref="IHostApplicationLifetime"/>.
+        /// </summary>
+        public IHostApplicationLifetime ApplicationLifetime => Services.GetRequiredService<IHostApplicationLifetime>();
+
         /// <summary>
         /// Gets the original format.
         /// </summary>

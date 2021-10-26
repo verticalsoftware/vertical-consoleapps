@@ -2,7 +2,7 @@ using System;
 
 namespace Vertical.ConsoleApplications.Routing
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class CommandAttribute : Attribute
     {
         /// <summary>

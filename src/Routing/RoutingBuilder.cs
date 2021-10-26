@@ -12,7 +12,7 @@ namespace Vertical.ConsoleApplications.Routing
     public class RoutingBuilder
     {
         private static readonly ConstructorInfo ControllerConstructorInfo =
-            typeof(ControllerHandler<>)
+            typeof(DecoratedMethodHandler<>)
                 .GetConstructors()
                 .First(ctor => ctor.GetParameters().Length == 2);
         
@@ -63,24 +63,55 @@ namespace Vertical.ConsoleApplications.Routing
         /// <returns>A reference to this instance.</returns>
         public RoutingBuilder MapHandler<T>(string route) where T : class, ICommandHandler
         {
-            ApplicationServices
-                .AddScoped<T>()
-                .AddSingleton(new RouteDescriptor(route, serviceProvider =>
-                serviceProvider.GetRequiredService<T>()));
-
-            return this;
+            return MapDescriptor(route, typeof(T));
         }
 
         /// <summary>
-        /// Maps the route or routes in a command controller implementation.
+        /// Maps a <see cref="ICommandHandler"/> implementation for the given route.
         /// </summary>
-        /// <param name="type">Controller type</param>
+        /// <param name="route">The route to map</param>
+        /// <param name="type">The command handler type</param>
+        /// <returns>A reference to this instance.</returns>
+        public RoutingBuilder MapHandler(string route, Type type)
+        {
+            if (!typeof(ICommandHandler).IsAssignableFrom(type))
+            {
+                throw new ArgumentException($"Type '{type}' is not assignable to {typeof(ICommandHandler)}");
+            }
+
+            return MapDescriptor(route, type);
+        }
+        
+        /// <summary>
+        /// Maps the route or routes in a type that have one or more command
+        /// handler implementations.
+        /// </summary>
+        /// <typeparam name="T">Controller-service type</typeparam>
+        /// <returns>A reference to this instance.</returns>
+        public RoutingBuilder MapHandler<T>() where T : class => MapHandler(typeof(T));
+
+        /// <summary>
+        /// Maps the route or routes in a type that have one or more command
+        /// handler implementations.
+        /// </summary>
+        /// <param name="type">Controller-service type</param>
         /// <returns>A reference to this instance.</returns>        
-        public RoutingBuilder MapController(Type type)
+        public RoutingBuilder MapHandler(Type type)
         {
             if (type == null)
             {
                 throw new ArgumentNullException(nameof(type));
+            }
+
+            if (typeof(ICommandHandler).IsAssignableFrom(type))
+            {
+                var commandAttribute = type.GetCustomAttribute<CommandAttribute>();
+                if (commandAttribute != null)
+                {
+                    // Faster than method mapping
+                    MapHandler(commandAttribute.Route, type);
+                    return this;
+                }
             }
             
             var methods = type
@@ -96,19 +127,15 @@ namespace Vertical.ConsoleApplications.Routing
                     
                     if (item.command == null)
                         return false;
-                    
-                    if (method.ReturnType != typeof(Task))
-                        return false;
 
                     var parameters = method.GetParameters();
 
-                    if (parameters.Length != 2)
-                        return false;
-
-                    if (parameters[0].ParameterType != typeof(CommandContext))
-                        return false;
-
-                    return parameters[1].ParameterType == typeof(CancellationToken);
+                    return parameters.Length == 2
+                           && parameters[0].ParameterType == typeof(CommandContext)
+                           && !parameters[0].ParameterType.IsByRef
+                           && parameters[1].ParameterType == typeof(CancellationToken)
+                           && !parameters[1].ParameterType.IsByRef
+                           && method.ReturnType == typeof(Task);
                 })
                 .ToArray();
 
@@ -132,7 +159,7 @@ namespace Vertical.ConsoleApplications.Routing
                 
                 // Create an implementation factory
                 var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
-                var handlerType = typeof(ControllerHandler<>).MakeGenericType(type);
+                var handlerType = typeof(DecoratedMethodHandler<>).MakeGenericType(type);
                 var getController = Expression.Convert( 
                     Expression.Call(
                     serviceProvider,
@@ -158,10 +185,38 @@ namespace Vertical.ConsoleApplications.Routing
         }
 
         /// <summary>
-        /// Maps the route or routes in a command controller implementation.
+        /// Maps all handlers 
         /// </summary>
-        /// <typeparam name="T">Controller type</typeparam>
-        /// <returns>A reference to this instance.</returns>
-        public RoutingBuilder MapController<T>() where T : class => MapController(typeof(T));
+        /// <param name="assembly"></param>
+        /// <returns></returns>
+        public RoutingBuilder MapHandlers(Assembly? assembly = null)
+        {
+            assembly ??= Assembly.GetCallingAssembly();
+
+            var handlerTypes = assembly
+                .ExportedTypes
+                .Where(type => type.IsClass
+                               && !type.IsInterface
+                               && !type.IsAbstract
+                               && (type.GetCustomAttribute<CommandHandlerAttribute>() != null
+                               || typeof(ICommandHandler).IsAssignableFrom(type)));
+
+            foreach (var type in handlerTypes)
+            {
+                MapHandler(type);
+            }
+
+            return this;
+        }
+
+        private RoutingBuilder MapDescriptor(string route, Type type)
+        {
+            ApplicationServices
+                .AddScoped(type)
+                .AddSingleton(new RouteDescriptor(route, serviceProvider => (ICommandHandler)
+                    serviceProvider.GetRequiredService(type)));
+            
+            return this;
+        }
     }
 }

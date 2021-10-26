@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,7 @@ namespace BasicExample
 
                 .ConfigureProviders(providers =>
                 {
-                    //providers.AddEntryArguments(entryArgs);
+                    providers.AddEnvironmentVariable("");
                     
                     // Let user type input to our program
                     providers.AddInteractiveConsole(() => Console.Write("Type something or 'exit' > "));
@@ -57,15 +58,7 @@ namespace BasicExample
                             return Task.CompletedTask;
                         });
 
-                        router.Map("backup", (context, ct) =>
-                        {
-                            Console.WriteLine("You want to backup {0} to {1}",
-                                context.Arguments[0],
-                                context.Arguments[1]);
-                            return Task.CompletedTask;
-                        });
-
-                        router.MapController(typeof(MyController));
+                        router.MapHandlers();
                     });
                 });
 

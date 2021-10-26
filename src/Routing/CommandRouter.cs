@@ -61,6 +61,7 @@ namespace Vertical.ConsoleApplications.Routing
 
             var subContext = new CommandContext(
                 context.Arguments.Skip(1).ToArray(),
+                serviceProvider,
                 context.Data);
 
             return handler.HandleAsync(subContext, cancellationToken);
@@ -68,10 +69,13 @@ namespace Vertical.ConsoleApplications.Routing
 
         private bool TryGetFactory(string route, out Func<IServiceProvider, ICommandHandler>? factory)
         {
+            factory = null;
+
+            if (string.IsNullOrWhiteSpace(route))
+                return false;
+            
             var matchDescriptor = new RouteDescriptor(route, default!);
             var index = _routeDescriptors.BinarySearch(matchDescriptor, _descriptorComparer);
-            
-            factory = null;
 
             if (index > -1)
             {
@@ -81,15 +85,15 @@ namespace Vertical.ConsoleApplications.Routing
 
             for (var c = ~index; c > -1 && c < _routeDescriptors.Count; c--)
             {
-                var descriptor = _routeDescriptors[c];
+                var (map, implementationFactory) = _routeDescriptors[c];
 
-                if (route.StartsWith(descriptor.Route))
+                if (route.StartsWith(map))
                 {
-                    factory = descriptor.ImplementationFactory;
+                    factory = implementationFactory;
                     return true;
                 }
 
-                if (route[0] > descriptor.Route[0])
+                if (route[0] > map[0])
                     return false;
             }
 

@@ -2,8 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Vertical.ConsoleApplications.Pipeline;
+using Vertical.ConsoleApplications.Routing;
 
-namespace Vertical.ConsoleApplications.Routing
+namespace Vertical.ConsoleApplications.Middleware
 {
     internal class CommandRoutingMiddleware : IMiddleware
     {
