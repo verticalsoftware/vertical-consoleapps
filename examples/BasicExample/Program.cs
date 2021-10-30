@@ -14,53 +14,31 @@ namespace BasicExample
         static Task Main(string[] entryArgs)
         {
             var host = ConsoleHostBuilder.CreateDefault()
-                
-                .ConfigureServices(services =>
-                {
-                    // Silence Microsoft logging
-                    services.AddLogging(logging => logging
-                        .AddFilter("Microsoft.*", LogLevel.Critical)
-                        .SetMinimumLevel(LogLevel.Trace));
-
-                    services.AddCommandRouting();
-                })
 
                 .ConfigureProviders(providers =>
                 {
-                    providers.AddEnvironmentVariable("");
-                    
-                    // Let user type input to our program
-                    providers.AddInteractiveConsole(() => Console.Write("Type something or 'exit' > "));
+                    // Process the entry arguments
+                    providers.AddEntryArguments(entryArgs);
                 })
                 
                 .Configure(app =>
                 {
-                    app.UseExitCommands(new[]{"exit", "quit"});
-
-                    app.UseEnvironmentVariableTokens();
-
-                    app.UseSpecialFolderTokens();
-                    
-                    app.Use(async (context, next, cancelToken) =>
+                    app.Use((context, next, cancellation) =>
                     {
-                        await Task.Delay(250, CancellationToken.None);
+                        var arguments = context.Arguments;
                         
-                        Console.WriteLine(string.Join(' ', context.Arguments));
+                        Console.WriteLine("This example simply prints the arguments received from the command line (Main(string[] args).");
+                        Console.WriteLine("Received argument count = {0}", arguments.Length);
 
-                        await next(context, cancelToken);
-                    });
-
-                    app.UseRouting(router =>
-                    {
-                        router.Map("help", (context, ct) =>
+                        for(var c = 0; c < arguments.Length; c++)
                         {
-                            Console.WriteLine("You need help!");
-                            return Task.CompletedTask;
-                        });
-
-                        router.MapHandlers();
+                            Console.WriteLine($" [{c}] = {arguments[c]}");
+                        }
+                        
+                        return Task.CompletedTask;
                     });
                 });
+            
 
             return host.RunConsoleAsync();
         }

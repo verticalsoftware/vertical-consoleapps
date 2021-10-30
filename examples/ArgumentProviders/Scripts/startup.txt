@@ -1,0 +1,5 @@
+connect db postgesql:customers:4300
+exec "insert into scx.logins(user_id, login) values('admin', 'aF99f#OO3JGiu^991")
+exec "insert into scx.logins(user_id, login) values('backup_operator', 'L01pPoP9348$_bHH')
+print PATH=$PATH
+print USER=$USER

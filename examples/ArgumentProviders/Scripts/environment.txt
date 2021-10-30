@@ -1,0 +1,2 @@
+set value USER=vertical
+set credential PASSWORD=p@assw0rd!
