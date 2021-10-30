@@ -22,7 +22,6 @@ namespace Vertical.ConsoleApplications.Pipeline
             Arguments = arguments;
             Services = services;
             Data = data;
-            OriginalFormat = string.Join(' ', arguments);
         }
         
         /// <summary>
@@ -43,7 +42,7 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// <summary>
         /// Gets the original format.
         /// </summary>
-        public string OriginalFormat { get; }
+        public string OriginalFormat => string.Join(' ', Arguments);
 
         /// <summary>
         /// Gets application defined data associated with the context.

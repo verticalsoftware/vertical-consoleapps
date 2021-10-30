@@ -130,12 +130,20 @@ namespace Vertical.ConsoleApplications.Routing
 
                     var parameters = method.GetParameters();
 
-                    return parameters.Length == 2
-                           && parameters[0].ParameterType == typeof(CommandContext)
-                           && !parameters[0].ParameterType.IsByRef
-                           && parameters[1].ParameterType == typeof(CancellationToken)
-                           && !parameters[1].ParameterType.IsByRef
-                           && method.ReturnType == typeof(Task);
+                    var isSignatureMatch = parameters.Length == 2
+                                           && parameters[0].ParameterType == typeof(CommandContext)
+                                           && parameters[1].ParameterType == typeof(CancellationToken)
+                                           && !parameters[0].ParameterType.IsByRef
+                                           && !parameters[1].ParameterType.IsByRef
+                                           && method.ReturnType == typeof(Task);
+
+                    if (isSignatureMatch) 
+                        return true;
+                    
+                    var message = $"Method {type}.{method} is decorated to handle command '{item.command}' "
+                                  + "but its signature is not compatible";
+                    
+                    throw new InvalidOperationException(message);
                 })
                 .ToArray();
 

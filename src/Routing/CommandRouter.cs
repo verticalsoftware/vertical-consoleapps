@@ -83,9 +83,11 @@ namespace Vertical.ConsoleApplications.Routing
                 return true;
             }
 
-            for (var c = ~index; c > -1 && c < _routeDescriptors.Count; c--)
+            index = Math.Min(~index, _routeDescriptors.Count - 1);
+
+            for (; index >= 0; index--)
             {
-                var (map, implementationFactory) = _routeDescriptors[c];
+                var (map, implementationFactory) = _routeDescriptors[index];
 
                 if (route.StartsWith(map))
                 {
@@ -95,7 +97,7 @@ namespace Vertical.ConsoleApplications.Routing
 
                 if (route[0] > map[0])
                     return false;
-            }
+            } 
 
             return false;
         }

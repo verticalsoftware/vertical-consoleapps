@@ -29,8 +29,14 @@ namespace Vertical.ConsoleApplications.Providers
         /// </summary>
         /// <param name="args">Arguments to add.</param>
         /// <returns>A reference to this instance.</returns>
-        public ProviderBuilder AddArguments(string[] args) =>
-            AddArguments(args, "static");
+        public ProviderBuilder AddArguments(string[] args) => AddArguments(args, "static");
+
+        /// <summary>
+        /// Adds arguments to the provider order by splitting the provider string.
+        /// </summary>
+        /// <param name="args">A string that contains the argument(s) to add.</param>
+        /// <returns>A reference to this instance.</returns>
+        public ProviderBuilder AddArgumentString(string args) => AddArguments(ArgumentHelpers.SplitFromString(args));
 
         /// <summary>
         /// Adds entry arguments to the provider order.
@@ -111,7 +117,7 @@ namespace Vertical.ConsoleApplications.Providers
                 var directoryInfo = new DirectoryInfo(basePath);
                 var results = matcher.Execute(new DirectoryInfoWrapper(directoryInfo));
 
-                return Task.FromResult(results.Files.Select(r => r.Path));
+                return Task.FromResult(results.Files.Select(r => Path.Combine(basePath, r.Path)));
             }
 
             return AddProvider(services => new ScriptFileArgumentsProvider(
