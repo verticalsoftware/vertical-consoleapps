@@ -17,7 +17,7 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// A delegate that implements the middleware
         /// </param>
         /// <returns>A reference to this instance</returns>
-        PipelineBuilder Use(Func<CommandContext, PipelineDelegate, CancellationToken, Task> middleware);
+        PipelineBuilder Use(Func<RequestContext, PipelineDelegate, CancellationToken, Task> middleware);
 
         /// <summary>
         /// Registers a middleware component.

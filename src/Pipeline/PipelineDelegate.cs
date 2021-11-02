@@ -6,5 +6,5 @@ namespace Vertical.ConsoleApplications.Pipeline
     /// <summary>
     /// Handles invocations of pipeline middleware.
     /// </summary>
-    public delegate Task PipelineDelegate(CommandContext context, CancellationToken cancellationToken);
+    public delegate Task PipelineDelegate(RequestContext context, CancellationToken cancellationToken);
 }

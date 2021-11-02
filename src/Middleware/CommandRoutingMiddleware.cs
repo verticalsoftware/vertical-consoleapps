@@ -23,7 +23,7 @@ namespace Vertical.ConsoleApplications.Middleware
         }
         
         /// <inheritdoc />
-        public Task InvokeAsync(CommandContext context, 
+        public Task InvokeAsync(RequestContext context, 
             PipelineDelegate next, 
             CancellationToken cancellationToken)
         {

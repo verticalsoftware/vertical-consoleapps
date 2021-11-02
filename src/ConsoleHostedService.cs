@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Providers;
+using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications
 {
@@ -17,20 +18,20 @@ namespace Vertical.ConsoleApplications
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly IEnumerable<IArgumentsProvider> _argumentsProviders;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IContextDataFactory _contextDataFactory;
+        private readonly IEnumerable<IRequestInitializer> _requestInitializers;
 
         public ConsoleHostedService(
             IHostApplicationLifetime hostApplicationLifetime,
             IEnumerable<IArgumentsProvider> argumentsProviders,
             IServiceProvider serviceProvider,
-            IContextDataFactory contextDataFactory,
+            IEnumerable<IRequestInitializer> requestInitializers,
             ILogger<ConsoleHostedService>? logger = null)
         {
             _logger = logger;
             _hostApplicationLifetime = hostApplicationLifetime;
             _argumentsProviders = argumentsProviders;
             _serviceProvider = serviceProvider;
-            _contextDataFactory = contextDataFactory;
+            _requestInitializers = requestInitializers;
         }
 
         /// <inheritdoc />
@@ -76,9 +77,12 @@ namespace Vertical.ConsoleApplications
 
                     var pipeline = middlewareFactory.Create();
 
-                    var context = new CommandContext(args,
-                        scope.ServiceProvider,
-                        _contextDataFactory.CreateContextData(args));
+                    var context = new RequestContext(args, scope.ServiceProvider);
+
+                    foreach (var initializer in _requestInitializers)
+                    {
+                        initializer.Initialize(context);
+                    }
 
                     await pipeline(context, cancellationToken);
 

@@ -10,7 +10,7 @@ namespace HandlerCommandRouting
     {
         /// <inheritdoc />
         [Command("help")]
-        public Task HandleAsync(CommandContext context, CancellationToken cancellationToken)
+        public Task HandleAsync(RequestContext context, CancellationToken cancellationToken)
         {
             Console.WriteLine("This program demonstrates inline routed commands by pretending to be a calculator.");
             Console.WriteLine("Type a command (add, sub, mul, div, pow, min, max) and two operands - e.g. add 2 5");

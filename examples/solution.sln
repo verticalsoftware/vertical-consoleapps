@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InlineCommandRouting", "Inl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandlerCommandRouting", "HandlerCommandRouting\HandlerCommandRouting.csproj", "{5872483D-85AC-4297-8C7D-8FFF13D08492}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeatureSliceRouting", "FeatureSliceRouting\FeatureSliceRouting.csproj", "{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +118,18 @@ Global
 		{5872483D-85AC-4297-8C7D-8FFF13D08492}.Release|x64.Build.0 = Release|Any CPU
 		{5872483D-85AC-4297-8C7D-8FFF13D08492}.Release|x86.ActiveCfg = Release|Any CPU
 		{5872483D-85AC-4297-8C7D-8FFF13D08492}.Release|x86.Build.0 = Release|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Debug|x64.Build.0 = Debug|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Debug|x86.Build.0 = Debug|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|x64.ActiveCfg = Release|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|x64.Build.0 = Release|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|x86.ActiveCfg = Release|Any CPU
+		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2344D87-4355-4B43-8F8F-DE3BBF34BCB6} = {C1717D8B-B603-44B0-950E-48C25D5031D6}

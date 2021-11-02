@@ -23,7 +23,7 @@ namespace Vertical.ConsoleApplications.Middleware
         }
         
         /// <inheritdoc />
-        public Task InvokeAsync(CommandContext context, PipelineDelegate next, CancellationToken cancellationToken)
+        public Task InvokeAsync(RequestContext context, PipelineDelegate next, CancellationToken cancellationToken)
         {
             if (_commands.Any(cmd => cmd == context.OriginalFormat))
             {

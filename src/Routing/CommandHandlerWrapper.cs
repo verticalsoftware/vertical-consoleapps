@@ -10,9 +10,9 @@ namespace Vertical.ConsoleApplications.Routing
     /// </summary>
     internal class CommandHandlerWrapper : ICommandHandler
     {
-        private readonly Func<CommandContext, CancellationToken, Task> _handlerImplementation;
+        private readonly Func<RequestContext, CancellationToken, Task> _handlerImplementation;
 
-        internal CommandHandlerWrapper(Func<CommandContext, CancellationToken, Task> handlerImplementation)
+        internal CommandHandlerWrapper(Func<RequestContext, CancellationToken, Task> handlerImplementation)
         {
             _handlerImplementation = handlerImplementation 
                                      ?? 
@@ -20,7 +20,7 @@ namespace Vertical.ConsoleApplications.Routing
         }
         
         /// <inheritdoc />
-        public Task HandleAsync(CommandContext context, CancellationToken cancellationToken)
+        public Task HandleAsync(RequestContext context, CancellationToken cancellationToken)
         {
             return _handlerImplementation(context, cancellationToken);
         }

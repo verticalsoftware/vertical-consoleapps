@@ -37,7 +37,7 @@ namespace Vertical.ConsoleApplications.Routing
         /// A delegate that implements the command logic
         /// </param>
         /// <returns>A reference to this instance</returns>
-        public RoutingBuilder Map(string route, Func<CommandContext, CancellationToken, Task> handler)
+        public RoutingBuilder Map(string route, Func<RequestContext, CancellationToken, Task> handler)
         {
             ApplicationServices.AddSingleton(new RouteDescriptor(route, _ => new CommandHandlerWrapper(handler)));
             return this;
@@ -131,7 +131,7 @@ namespace Vertical.ConsoleApplications.Routing
                     var parameters = method.GetParameters();
 
                     var isSignatureMatch = parameters.Length == 2
-                                           && parameters[0].ParameterType == typeof(CommandContext)
+                                           && parameters[0].ParameterType == typeof(RequestContext)
                                            && parameters[1].ParameterType == typeof(CancellationToken)
                                            && !parameters[0].ParameterType.IsByRef
                                            && !parameters[1].ParameterType.IsByRef
@@ -156,7 +156,7 @@ namespace Vertical.ConsoleApplications.Routing
             {
                 // Create handler delegate
                 var controller = Expression.Parameter(type);
-                var context = Expression.Parameter(typeof(CommandContext));
+                var context = Expression.Parameter(typeof(RequestContext));
                 var cancelToken = Expression.Parameter(typeof(CancellationToken));
                 var handle = Expression.Call(controller, methodInfo.method, context, cancelToken);
                 var lambda = Expression.Lambda(

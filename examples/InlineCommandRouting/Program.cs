@@ -63,7 +63,7 @@ namespace InlineCommandRouting
             return hostBuilder.RunConsoleAsync();
         }
 
-        private static Task PrintResult(CommandContext context, Func<double, double, double> op)
+        private static Task PrintResult(RequestContext context, Func<double, double, double> op)
         {
             var args = context.Arguments;
             var operands = Parse(args);

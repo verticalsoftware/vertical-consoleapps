@@ -19,7 +19,7 @@ namespace Vertical.ConsoleApplications.Routing
         /// <param name="cancellationToken">Token that can be observed for cancellation requests</param>
         /// <returns>Task</returns>
         Task RouteAsync(IServiceProvider serviceProvider, 
-            CommandContext context, 
+            RequestContext context, 
             CancellationToken cancellationToken);
     }
 }

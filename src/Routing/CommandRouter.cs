@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
+using Vertical.ConsoleApplications.Utilities;
 
 namespace Vertical.ConsoleApplications.Routing
 {
@@ -41,11 +42,11 @@ namespace Vertical.ConsoleApplications.Routing
         
         /// <inheritdoc />
         public Task RouteAsync(IServiceProvider serviceProvider,
-            CommandContext context, 
+            RequestContext context, 
             CancellationToken cancellationToken)
         {
             var route = context.OriginalFormat;
-            var handlerMatched = TryGetFactory(context.OriginalFormat, out var factory);
+            var handlerMatched = TryGetDescriptor(context.OriginalFormat, out var descriptor);
 
             if (!handlerMatched)
             {
@@ -53,24 +54,31 @@ namespace Vertical.ConsoleApplications.Routing
                 return Task.CompletedTask;
             }
 
-            var handler = factory!(serviceProvider);
+            var handler = descriptor!.ImplementationFactory(serviceProvider);
+            var matchedRoute = descriptor.Route;
             
+            context.Items.Set(descriptor);
+
             _logger.LogInformation("Matched handler for command route '{route}' = {handler}",
                 route,
                 handler);
+            
+            // Make new arguments to trim off command
+            var trimmedFormat = context.OriginalFormat.Length > matchedRoute.Length
+                ? context.OriginalFormat[matchedRoute.Length..]
+                : context.OriginalFormat;
 
-            var subContext = new CommandContext(
-                context.Arguments.Skip(1).ToArray(),
-                serviceProvider,
-                context.Data);
+            var subContext = new RequestContext(
+                ArgumentHelpers.SplitFromString(trimmedFormat),
+                serviceProvider);
 
             return handler.HandleAsync(subContext, cancellationToken);
         }
 
-        private bool TryGetFactory(string route, out Func<IServiceProvider, ICommandHandler>? factory)
+        private bool TryGetDescriptor(string route, out RouteDescriptor? descriptor)
         {
-            factory = null;
-
+            descriptor = null;
+            
             if (string.IsNullOrWhiteSpace(route))
                 return false;
             
@@ -79,7 +87,7 @@ namespace Vertical.ConsoleApplications.Routing
 
             if (index > -1)
             {
-                factory = _routeDescriptors[index].ImplementationFactory;
+                descriptor = _routeDescriptors[index];
                 return true;
             }
 
@@ -87,11 +95,11 @@ namespace Vertical.ConsoleApplications.Routing
 
             for (; index >= 0; index--)
             {
-                var (map, implementationFactory) = _routeDescriptors[index];
+                descriptor = _routeDescriptors[index];
+                var map = descriptor.Route;
 
                 if (route.StartsWith(map))
                 {
-                    factory = implementationFactory;
                     return true;
                 }
 

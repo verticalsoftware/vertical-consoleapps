@@ -15,7 +15,6 @@ namespace Vertical.ConsoleApplications.Pipeline
         {
             ApplicationServices = applicationServices;
 
-            applicationServices.AddSingleton<IContextDataFactory, DefaultContextDataFactory>();
             applicationServices.AddScoped<IMiddlewareFactory, MiddlewareFactory>();
         }
 
@@ -31,7 +30,7 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// A delegate that implements the middleware
         /// </param>
         /// <returns>A reference to this instance</returns>
-        public PipelineBuilder Use(Func<CommandContext, PipelineDelegate, CancellationToken, Task> middleware)
+        public PipelineBuilder Use(Func<RequestContext, PipelineDelegate, CancellationToken, Task> middleware)
         {
             ApplicationServices.AddScoped<IMiddleware>(_ => new MiddlewareWrapper(middleware));
             return this;

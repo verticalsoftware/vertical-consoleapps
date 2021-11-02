@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Vertical.ConsoleApplications.IO;
+using Vertical.ConsoleApplications.Pipeline;
+using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications
 {
@@ -18,6 +20,7 @@ namespace Vertical.ConsoleApplications
                 {
                     services.AddHostedService<ConsoleHostedService>();
                     services.AddSingleton<IConsoleInputAdapter, DefaultConsoleInputAdapter>();
+                    services.AddScoped<RequestItems>();
                 });
         }
     }

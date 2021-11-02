@@ -15,6 +15,6 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// <param name="next">A delegate that transfers control to the next component in the pipeline</param>
         /// <param name="cancellationToken">A token that can be observed for cancellation requests</param>
         /// <returns>Task</returns>
-        Task InvokeAsync(CommandContext context, PipelineDelegate next, CancellationToken cancellationToken);
+        Task InvokeAsync(RequestContext context, PipelineDelegate next, CancellationToken cancellationToken);
     }
 }

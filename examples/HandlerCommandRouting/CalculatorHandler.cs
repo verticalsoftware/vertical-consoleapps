@@ -10,35 +10,35 @@ namespace HandlerCommandRouting
     public class CalculatorHandler
     {
         [Command("add")]
-        public Task AddAsync(CommandContext context, CancellationToken cancelToken) =>
+        public Task AddAsync(RequestContext context, CancellationToken cancelToken) =>
             PrintResult(context, (a, b) => a + b);
         
         [Command("sub")]
-        public Task SubtractAsync(CommandContext context, CancellationToken cancelToken) =>
+        public Task SubtractAsync(RequestContext context, CancellationToken cancelToken) =>
             PrintResult(context, (a, b) => a - b);
         
         [Command("mul")]
-        public Task MultiplyAsync(CommandContext context, CancellationToken cancelToken) =>
+        public Task MultiplyAsync(RequestContext context, CancellationToken cancelToken) =>
             PrintResult(context, (a, b) => a * b);
 
         [Command("div")]
-        public Task DivideAsync(CommandContext context, CancellationToken cancelToken) =>
+        public Task DivideAsync(RequestContext context, CancellationToken cancelToken) =>
             PrintResult(context, (a, b) => a / b);
         
         [Command("pow")]
-        public Task RaiseAsync(CommandContext context, CancellationToken cancelToken) =>
+        public Task RaiseAsync(RequestContext context, CancellationToken cancelToken) =>
             PrintResult(context, Math.Pow);
         
         [Command("min")]
-        public Task GetMinAsync(CommandContext context, CancellationToken cancelToken) =>
+        public Task GetMinAsync(RequestContext context, CancellationToken cancelToken) =>
             PrintResult(context, Math.Min);
         
         [Command("max")]
-        public Task GetMaxAsync(CommandContext context, CancellationToken cancelToken) =>
+        public Task GetMaxAsync(RequestContext context, CancellationToken cancelToken) =>
             PrintResult(context, Math.Max);
 
         
-        private static Task PrintResult(CommandContext context, Func<double, double, double> op)
+        private static Task PrintResult(RequestContext context, Func<double, double, double> op)
         {
             var args = context.Arguments;
             var operands = Parse(args);

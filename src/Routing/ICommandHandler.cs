@@ -16,6 +16,6 @@ namespace Vertical.ConsoleApplications.Routing
         /// <param name="context">Command context</param>
         /// <param name="cancellationToken">Token that can be observed for cancellation requests</param>
         /// <returns>Task</returns>
-        Task HandleAsync(CommandContext context, CancellationToken cancellationToken);
+        Task HandleAsync(RequestContext context, CancellationToken cancellationToken);
     }
 }
