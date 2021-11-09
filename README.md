@@ -106,3 +106,14 @@ private static Task Main(string[] args)
     return hostBuilder.RunConsoleAsync();
 }
 ```
+
+### Samples
+
+One way to see examples of the concepts in this documentation is to examine the simple provided samples.
+
+- [Basic configuration/skeleton setup](https://github.com/verticalsoftware/vertical-consoleapps/tree/dev/examples/BasicExample)
+- [Argument Providers](https://github.com/verticalsoftware/vertical-consoleapps/tree/dev/examples/ArgumentProviders)
+- [Argument Pipeline](https://github.com/verticalsoftware/vertical-consoleapps/tree/dev/examples/ArgumentPipeline)
+- [Inline Command Routing](https://github.com/verticalsoftware/vertical-consoleapps/blob/dev/examples/InlineCommandRouting)
+- [Feature-slice Style Routing](https://github.com/verticalsoftware/vertical-consoleapps/tree/dev/examples/HandlerCommandRouting)
+- [Controller Style Routing](https://github.com/verticalsoftware/vertical-consoleapps/tree/dev/examples/HandlerCommandRouting)
