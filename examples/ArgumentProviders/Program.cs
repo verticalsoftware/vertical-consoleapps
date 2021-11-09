@@ -38,7 +38,7 @@ namespace ArgumentProviders
                     });
                 });
             
-            Console.WriteLine("Type 'exit' to stop the application");
+            Console.WriteLine("Type commands or 'exit' to stop the application");
 
             return hostBuilder.RunConsoleAsync();
         }
