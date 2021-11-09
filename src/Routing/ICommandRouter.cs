@@ -1,19 +1,25 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Vertical.ConsoleApplications.Pipeline;
 
 namespace Vertical.ConsoleApplications.Routing
 {
     /// <summary>
-    /// Parses and dispatches arguments to command handlers.
+    /// Represents a service that routes action based on command arguments.
     /// </summary>
     public interface ICommandRouter
     {
         /// <summary>
-        /// Given the arguments, attempts to route action to a command.
+        /// When implemented by a class, routes action based on command arguments to
+        /// a pre-defined handler.
         /// </summary>
-        /// <param name="arguments">Command arguments</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>Whether the command was routed</returns>
-        Task<bool> TryRouteCommandAsync(string[] arguments, CancellationToken cancellationToken);
+        /// <param name="serviceProvider">Command request service provider</param>
+        /// <param name="context">Current command context</param>
+        /// <param name="cancellationToken">Token that can be observed for cancellation requests</param>
+        /// <returns>Task</returns>
+        Task RouteAsync(IServiceProvider serviceProvider, 
+            RequestContext context, 
+            CancellationToken cancellationToken);
     }
 }

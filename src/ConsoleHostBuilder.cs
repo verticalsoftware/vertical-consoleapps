@@ -1,47 +1,27 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Vertical.ConsoleApplications.Providers;
+using Vertical.ConsoleApplications.IO;
+using Vertical.ConsoleApplications.Pipeline;
+using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications
 {
-    /// <summary>
-    /// Defines a default host builder for console application.
-    /// </summary>
     public static class ConsoleHostBuilder
     {
         /// <summary>
-        /// Creates a <see cref="IHostBuilder"/> with defaults.
+        /// Creates a <see cref="IHostBuilder"/> instance specific to
+        /// console applications.
         /// </summary>
-        /// <param name="args">Entry arguments.</param>
         /// <returns><see cref="IHostBuilder"/></returns>
-        public static IHostBuilder CreateDefault(string[] args)
+        public static IHostBuilder CreateDefault()
         {
-            var contentRoot = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)
-                              ?? Directory.GetCurrentDirectory();
-            var environment = Environment.GetEnvironmentVariable("CONSOLE_ENVIRONMENT")
-                              ?? "development";
-
-            return new HostBuilder()
-                
-                .ConfigureAppConfiguration(configuration => configuration
-                    .AddJsonFile(Path.Combine(contentRoot, "appsettings.json"), optional: true)
-                    .AddJsonFile(Path.Combine(contentRoot, $"appsettings.{environment}.json"), optional: true))
-                
+            return Host.CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
-                    services.Configure<EntryArguments>(options => options.Arguments = args);
                     services.AddHostedService<ConsoleHostedService>();
-                })
-                
-                .ConfigureLogging(logging => logging
-                    .SetMinimumLevel(LogLevel.Information)
-                    .AddConsole()
-                    .AddDebug());
+                    services.AddSingleton<IConsoleInputAdapter, DefaultConsoleInputAdapter>();
+                    services.AddScoped<RequestItems>();
+                });
         }
     }
 }

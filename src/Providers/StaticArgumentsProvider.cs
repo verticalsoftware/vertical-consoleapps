@@ -1,43 +1,50 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Vertical.ConsoleApplications.Providers
 {
-    public class StaticArgumentsProvider : ICommandProvider
+    /// <summary>
+    /// Implements <see cref="IArgumentsProvider"/> using known values.
+    /// </summary>
+    internal class StaticArgumentsProvider : IArgumentsProvider
     {
-        private readonly ILogger<StaticArgumentsProvider>? logger;
-        private readonly string[] arguments;
+        private readonly string[] _arguments;
+        private readonly string _context;
+        private readonly ILogger<StaticArgumentsProvider>? _logger;
 
         /// <summary>
-        /// Creates a new instance 
+        /// Creates a new instance of this type.
         /// </summary>
-        /// <param name="logger">Logger</param>
-        /// <param name="arguments">Arguments to send to the command pipeline</param>
-        public StaticArgumentsProvider(string[] arguments, ILogger<StaticArgumentsProvider>? logger = null)
+        /// <param name="arguments">The arguments.</param>
+        /// <param name="context">A context to attach to diagnostic events.</param>
+        /// <param name="logger">Logger instance</param>
+        /// <exception cref="ArgumentNullException"><paramref name="arguments"/> is null.</exception>
+        public StaticArgumentsProvider(
+            string[] arguments,
+            string context,
+            ILogger<StaticArgumentsProvider>? logger = default)
         {
-            this.logger = logger;
-            this.arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
+            _arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
+            _context = context;
+            _logger = logger;
         }
-        
+
         /// <inheritdoc />
-        public Task ExecuteCommandsAsync(Func<string[], Task> asyncInvoke, CancellationToken cancellationToken)
+        public override string ToString() => string.Join(" ", _arguments);
+
+        /// <inheritdoc />
+        public Task InvokeArgumentsAsync(
+            Func<string[], Task> handler, 
+            CancellationToken cancellationToken)
         {
-            if (arguments.Length == 0)
-            {
-                logger?.LogTrace("Arguments array is empty, invocation will be ignored");
-                return Task.CompletedTask;
-            }
-            
-            logger?.LogTrace(
-                "Evaluating {count} static arguments:"
-                + Environment.NewLine
-                + string.Join(Environment.NewLine, arguments.Select((arg, index) => $"  {index}> {arg}")),
-                arguments.Length);
-            
-            return asyncInvoke(arguments);
+            _logger?.LogTrace("Invoke {context} arguments ({count}): {values}", 
+                _context,
+                _arguments.Length, 
+                _arguments);
+
+            return handler(_arguments);
         }
     }
 }

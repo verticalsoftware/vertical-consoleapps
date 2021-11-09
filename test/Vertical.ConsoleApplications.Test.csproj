@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>..\assets\Vertical.CommandLine.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
@@ -25,6 +25,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Vertical.ConsoleApplications.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pipeline" />
   </ItemGroup>
 
 </Project>

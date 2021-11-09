@@ -1,82 +1,111 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Vertical.ConsoleApplications.Extensions;
+using Vertical.ConsoleApplications.Pipeline;
+using Vertical.ConsoleApplications.Utilities;
 
 namespace Vertical.ConsoleApplications.Routing
 {
     internal class CommandRouter : ICommandRouter
     {
-        private readonly ILogger<CommandRouter>? logger;
-        private readonly IOptions<RoutingConfiguration> options;
-        private readonly IServiceProvider services;
+        private readonly List<RouteDescriptor> _routeDescriptors;
+        private readonly ILogger<CommandRouter>? _logger;
+        private readonly IComparer<RouteDescriptor> _descriptorComparer = new RouteDescriptorComparer();
+
+        private sealed class RouteDescriptorComparer : IComparer<RouteDescriptor>
+        {
+            /// <inheritdoc />
+            public int Compare(RouteDescriptor? x, RouteDescriptor? y)
+            {
+                return string.Compare(x?.Route, y?.Route, StringComparison.CurrentCulture);
+            }
+        }
 
         /// <summary>
         /// Creates a new instance of this type.
         /// </summary>
+        /// <param name="routeDescriptors">Route descriptors</param>
         /// <param name="logger">Logger</param>
-        /// <param name="options">Options</param>
-        /// <param name="services">Services</param>
         public CommandRouter(
-            IOptions<RoutingConfiguration> options,
-            IServiceProvider services,
+            IEnumerable<RouteDescriptor> routeDescriptors,
             ILogger<CommandRouter>? logger = null)
         {
-            this.logger = logger;
-            this.options = options;
-            this.services = services;
+            _routeDescriptors = routeDescriptors
+                .OrderBy(dsc => dsc.Route)
+                .ToList();
+            
+            _logger = logger;
         }
         
         /// <inheritdoc />
-        public async Task<bool> TryRouteCommandAsync(string[] arguments, CancellationToken cancellationToken)
+        public Task RouteAsync(IServiceProvider serviceProvider,
+            RequestContext context, 
+            CancellationToken cancellationToken)
         {
-            var configuration = options.Value;
-            var route = string.Empty;
-            
-            logger?.LogTrace("Try routing command from {count} arguments", arguments.Length);
+            var route = context.OriginalFormat;
+            var handlerMatched = TryGetDescriptor(context.OriginalFormat, out var descriptor);
 
-            for (var c = 0; c < arguments.Length; c++)
+            if (!handlerMatched)
             {
-                route = Arguments.Combine(route, arguments[c]);
-                
-                logger?.LogTrace("Evaluating route candidate '{route}'", route);
+                _logger.LogInformation("No matching handler for command route '{route}'", route);
+                return Task.CompletedTask;
+            }
 
-                if (!configuration.RouteMap.TryGetValue(route, out var metadata))
-                {
-                    logger?.LogTrace("Route not matched");
-                    continue;
-                }
+            var handler = descriptor!.ImplementationFactory(serviceProvider);
+            var matchedRoute = descriptor.Route;
+            
+            context.Items.Set(descriptor);
 
-                logger?.LogTrace("Matched route '{route}' to metadata entry"
-                                + Environment.NewLine
-                                + "  Declaring type : {hostType}"
-                                + Environment.NewLine
-                                + "  Handler method : {method}",
-                    route,
-                    metadata.HostType,
-                    metadata.MethodMetadata.Name);
+            _logger.LogInformation("Matched handler for command route '{route}' = {handler}",
+                route,
+                handler);
+            
+            // Make new arguments to trim off command
+            var trimmedFormat = context.OriginalFormat.Length > matchedRoute.Length
+                ? context.OriginalFormat[matchedRoute.Length..]
+                : context.OriginalFormat;
 
-                using var dependencyScope = services.CreateScope();
-                
-                var routeHost = dependencyScope.ServiceProvider.GetRequiredService(metadata.HostType);
-                var argumentSubset = arguments.Skip(c + 1).ToArray();
+            var subContext = new RequestContext(
+                ArgumentHelpers.SplitFromString(trimmedFormat),
+                serviceProvider);
 
-                logger?.LogTrace("Invoking metadata target method with argument subset of {count}"
-                                 + Environment.NewLine
-                                 + string.Join(Environment.NewLine, argumentSubset.Select((arg, i) => $"  {i}> \"{arg}\"")),
-                    argumentSubset.Length);
-                
-                await metadata.InvokeTarget(routeHost, argumentSubset, cancellationToken);
+            return handler.HandleAsync(subContext, cancellationToken);
+        }
 
+        private bool TryGetDescriptor(string route, out RouteDescriptor? descriptor)
+        {
+            descriptor = null;
+            
+            if (string.IsNullOrWhiteSpace(route))
+                return false;
+            
+            var matchDescriptor = new RouteDescriptor(route, default!);
+            var index = _routeDescriptors.BinarySearch(matchDescriptor, _descriptorComparer);
+
+            if (index > -1)
+            {
+                descriptor = _routeDescriptors[index];
                 return true;
             }
 
-            logger?.LogTrace("[CommandRouter] No routes matched for arguments: [{arguments}]",
-                string.Join(",", arguments));
+            index = Math.Min(~index, _routeDescriptors.Count - 1);
+
+            for (; index >= 0; index--)
+            {
+                descriptor = _routeDescriptors[index];
+                var map = descriptor.Route;
+
+                if (route.StartsWith(map))
+                {
+                    return true;
+                }
+
+                if (route[0] > map[0])
+                    return false;
+            } 
 
             return false;
         }
