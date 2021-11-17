@@ -49,6 +49,6 @@ namespace Vertical.ConsoleApplications
         /// <returns>A reference </returns>
         public static IServiceCollection AddRequestInitializer(this IServiceCollection serviceCollection,
             Action<RequestContext> initializeAction) => serviceCollection.AddRequestInitializer(_ =>
-                new RequestInitializerWrapper(initializeAction));
+                new RequestInitializingWrapper(initializeAction));
     }
 }

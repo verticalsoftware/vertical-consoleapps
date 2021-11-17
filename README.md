@@ -117,3 +117,9 @@ One way to see examples of the concepts in this documentation is to examine the 
 - [Inline Command Routing](https://github.com/verticalsoftware/vertical-consoleapps/blob/dev/examples/InlineCommandRouting)
 - [Feature-slice Style Routing](https://github.com/verticalsoftware/vertical-consoleapps/tree/dev/examples/HandlerCommandRouting)
 - [Controller Style Routing](https://github.com/verticalsoftware/vertical-consoleapps/tree/dev/examples/HandlerCommandRouting)
+
+## Issues & Contributing
+
+- Request features or report an issue [here](https://github.com/verticalsoftware/vertical-consoleapps/issues)
+- Find and fixed something? Submit a PR [here](https://github.com/verticalsoftware/vertical-consoleapps/pulls)
+

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Providers;
 using Vertical.ConsoleApplications.Routing;
+using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications
 {
@@ -73,9 +74,9 @@ namespace Vertical.ConsoleApplications
                 {
                     using var scope = _serviceProvider.CreateScope();
 
-                    var middlewareFactory = scope.ServiceProvider.GetRequiredService<IMiddlewareFactory>();
+                    var pipelineFactory = scope.ServiceProvider.GetRequiredService<IPipelineFactory<RequestContext>>();
 
-                    var pipeline = middlewareFactory.Create();
+                    var pipeline = pipelineFactory.CreatePipeline();
 
                     var context = new RequestContext(args, scope.ServiceProvider);
 

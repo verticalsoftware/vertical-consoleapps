@@ -5,11 +5,11 @@ namespace Vertical.ConsoleApplications.Pipeline
     /// <summary>
     /// Wraps an action that performs request initialization.
     /// </summary>
-    internal sealed class RequestInitializerWrapper : IRequestInitializer
+    internal sealed class RequestInitializingWrapper : IRequestInitializer
     {
         private readonly Action<RequestContext> _initializeAction;
 
-        internal RequestInitializerWrapper(Action<RequestContext> initializeAction)
+        internal RequestInitializingWrapper(Action<RequestContext> initializeAction)
         {
             _initializeAction = initializeAction ?? throw new ArgumentNullException(nameof(initializeAction));
         }

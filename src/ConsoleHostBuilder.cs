@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Hosting;
 using Vertical.ConsoleApplications.IO;
 using Vertical.ConsoleApplications.Pipeline;
-using Vertical.ConsoleApplications.Routing;
 
 namespace Vertical.ConsoleApplications
 {

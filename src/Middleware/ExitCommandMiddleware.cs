@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
+using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications.Middleware
 {
-    internal class ExitCommandMiddleware : IMiddleware
+    internal class ExitCommandMiddleware : IPipelineMiddleware<RequestContext>
     {
         private readonly string[] _commands;
         private readonly IHostApplicationLifetime _applicationLifetime;
@@ -23,7 +24,9 @@ namespace Vertical.ConsoleApplications.Middleware
         }
         
         /// <inheritdoc />
-        public Task InvokeAsync(RequestContext context, PipelineDelegate next, CancellationToken cancellationToken)
+        public Task InvokeAsync(RequestContext context, 
+            PipelineDelegate<RequestContext> next, 
+            CancellationToken cancellationToken)
         {
             if (_commands.Any(cmd => cmd == context.OriginalFormat))
             {

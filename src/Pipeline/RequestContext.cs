@@ -24,9 +24,10 @@ namespace Vertical.ConsoleApplications.Pipeline
             Services = services;
             
             _lazyApplicationLifetime = new Lazy<IHostApplicationLifetime>(
-                services.GetRequiredService<IHostApplicationLifetime>);
+                () => services.GetRequiredService<IHostApplicationLifetime>());
+            
             _lazyRequestFeatures = new Lazy<RequestItems>(
-                services.GetRequiredService<RequestItems>());
+                () => services.GetRequiredService<RequestItems>());
         }
         
         /// <summary>

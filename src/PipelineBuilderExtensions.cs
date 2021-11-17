@@ -7,6 +7,7 @@ using Vertical.ConsoleApplications.Middleware;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Routing;
 using Vertical.ConsoleApplications.Utilities;
+using Vertical.Pipelines.DependencyInjection;
 
 namespace Vertical.ConsoleApplications
 {
@@ -19,8 +20,8 @@ namespace Vertical.ConsoleApplications
         /// <param name="pipelineBuilder">Pipeline builder</param>
         /// <param name="exitCommand">Exit command to listen for</param>
         /// <returns>A reference to the given pipeline builder</returns>
-        public static IPipelineBuilder UseExitCommand(
-            this IPipelineBuilder pipelineBuilder,
+        public static IPipelineBuilder<RequestContext> UseExitCommand(
+            this IPipelineBuilder<RequestContext> pipelineBuilder,
             string exitCommand)
         {
             return pipelineBuilder.UseExitCommands(new[] { exitCommand });
@@ -38,8 +39,8 @@ namespace Vertical.ConsoleApplications
         /// <exception cref="ArgumentException">
         /// <paramref name="exitCommands"/> array contains one or more elements that are null or only whitespace.
         /// </exception>
-        public static IPipelineBuilder UseExitCommands(
-            this IPipelineBuilder pipelineBuilder,
+        public static IPipelineBuilder<RequestContext> UseExitCommands(
+            this IPipelineBuilder<RequestContext> pipelineBuilder,
             string[] exitCommands)
         {
             if (exitCommands == null)
@@ -71,8 +72,8 @@ namespace Vertical.ConsoleApplications
         /// <param name="argument">Argument to match</param>
         /// <param name="replacementValue">Replacement value</param>
         /// <returns>A reference to the given pipeline builder</returns>
-        public static IPipelineBuilder UseArgumentReplacement(
-            this IPipelineBuilder pipelineBuilder,
+        public static IPipelineBuilder<RequestContext> UseArgumentReplacement(
+            this IPipelineBuilder<RequestContext> pipelineBuilder,
             string argument,
             string replacementValue)
         {
@@ -88,8 +89,8 @@ namespace Vertical.ConsoleApplications
         /// it with.
         /// </param>
         /// <returns>Pipeline builder</returns>
-        public static IPipelineBuilder UseArgumentReplacement(
-            this IPipelineBuilder pipelineBuilder,
+        public static IPipelineBuilder<RequestContext> UseArgumentReplacement(
+            this IPipelineBuilder<RequestContext> pipelineBuilder,
             Func<string, string> replaceFunction)
         {
             return pipelineBuilder.UseMiddleware(sp => new ArgumentReplacementMiddleware(
@@ -103,7 +104,7 @@ namespace Vertical.ConsoleApplications
         /// </summary>
         /// <param name="pipelineBuilder">Pipeline builder</param>
         /// <returns>A reference to the given pipeline builder</returns>
-        public static IPipelineBuilder UseEnvironmentVariableTokens(this IPipelineBuilder pipelineBuilder)
+        public static IPipelineBuilder<RequestContext> UseEnvironmentVariableTokens(this IPipelineBuilder<RequestContext> pipelineBuilder)
         {
             return pipelineBuilder.UseArgumentReplacement(TokenHelpers.ReplaceEnvironmentVariables);
         }
@@ -114,7 +115,7 @@ namespace Vertical.ConsoleApplications
         /// </summary>
         /// <param name="pipelineBuilder">Pipeline builder</param>
         /// <returns>A reference to the given pipeline builder</returns>
-        public static IPipelineBuilder UseSpecialFolderTokens(this IPipelineBuilder pipelineBuilder)
+        public static IPipelineBuilder<RequestContext> UseSpecialFolderTokens(this IPipelineBuilder<RequestContext> pipelineBuilder)
         {
             return pipelineBuilder.UseArgumentReplacement(TokenHelpers.ReplaceSpecialFolderPaths);
         }
@@ -127,8 +128,8 @@ namespace Vertical.ConsoleApplications
         /// A delegate that can be used to configure routes.
         /// </param>
         /// <returns>A reference to the given pipeline builder</returns>
-        public static IPipelineBuilder UseRouting(
-            this IPipelineBuilder pipelineBuilder,
+        public static IPipelineBuilder<RequestContext> UseRouting(
+            this IPipelineBuilder<RequestContext> pipelineBuilder,
             Action<RoutingBuilder> configureRouting)
         {
             configureRouting(new RoutingBuilder(pipelineBuilder.ApplicationServices));

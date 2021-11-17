@@ -3,10 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Routing;
+using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications.Middleware
 {
-    internal class CommandRoutingMiddleware : IMiddleware
+    internal class CommandRoutingMiddleware : IPipelineMiddleware<RequestContext>
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ICommandRouter _commandRouter;
@@ -24,7 +25,7 @@ namespace Vertical.ConsoleApplications.Middleware
         
         /// <inheritdoc />
         public Task InvokeAsync(RequestContext context, 
-            PipelineDelegate next, 
+            PipelineDelegate<RequestContext> next, 
             CancellationToken cancellationToken)
         {
             return _commandRouter.RouteAsync(_serviceProvider, context, cancellationToken);

@@ -3,10 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
+using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications.Middleware
 {
-    internal class ArgumentReplacementMiddleware : IMiddleware
+    internal class ArgumentReplacementMiddleware : IPipelineMiddleware<RequestContext>
     {
         private readonly Func<string, string> _replaceFunction;
         private readonly ILogger<ArgumentReplacementMiddleware>? _logger;
@@ -20,7 +21,7 @@ namespace Vertical.ConsoleApplications.Middleware
         
         /// <inheritdoc />
         public Task InvokeAsync(RequestContext context, 
-            PipelineDelegate next, 
+            PipelineDelegate<RequestContext> next, 
             CancellationToken cancellationToken)
         {
             var args = context.Arguments;
