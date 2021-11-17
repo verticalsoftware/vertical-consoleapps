@@ -105,7 +105,7 @@ namespace Vertical.ConsoleApplications
         /// <returns>A reference to the given pipeline builder</returns>
         public static IPipelineBuilder UseEnvironmentVariableTokens(this IPipelineBuilder pipelineBuilder)
         {
-            return pipelineBuilder.UseArgumentReplacement(ArgumentHelpers.ReplaceEnvironmentVariables);
+            return pipelineBuilder.UseArgumentReplacement(TokenHelpers.ReplaceEnvironmentVariables);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Vertical.ConsoleApplications
         /// <returns>A reference to the given pipeline builder</returns>
         public static IPipelineBuilder UseSpecialFolderTokens(this IPipelineBuilder pipelineBuilder)
         {
-            return pipelineBuilder.UseArgumentReplacement(ArgumentHelpers.ReplaceSpecialFolderPaths);
+            return pipelineBuilder.UseArgumentReplacement(TokenHelpers.ReplaceSpecialFolderPaths);
         }
 
         /// <summary>

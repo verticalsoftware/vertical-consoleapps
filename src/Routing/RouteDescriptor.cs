@@ -35,5 +35,8 @@ namespace Vertical.ConsoleApplications.Routing
             route = Route;
             implementationFactory = ImplementationFactory;
         }
+
+        /// <inheritdoc />
+        public override string ToString() => Route;
     }
 }

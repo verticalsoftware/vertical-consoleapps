@@ -30,6 +30,8 @@ namespace Vertical.ConsoleApplications.Middleware
                 _logger?.LogDebug("Exit command matched, requesting application stop");
                 
                 _applicationLifetime.StopApplication();
+                
+                return Task.CompletedTask;
             }
 
             return next(context, cancellationToken);

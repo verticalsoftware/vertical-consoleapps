@@ -193,9 +193,12 @@ namespace Vertical.ConsoleApplications.Routing
         }
 
         /// <summary>
-        /// Maps all handlers 
+        /// Maps all handlers types found in an assembly.
         /// </summary>
-        /// <param name="assembly"></param>
+        /// <param name="assembly">
+        /// The assembly that contains implementations to map. If <code>null</code> is given
+        /// then the calling assembly's types are scanned.
+        /// </param>
         /// <returns></returns>
         public RoutingBuilder MapHandlers(Assembly? assembly = null)
         {
