@@ -17,8 +17,7 @@ namespace Vertical.ConsoleApplications.Routing
 
         private sealed class RouteDescriptorComparer : IComparer<RouteDescriptor>
         {
-            /// <inheritdoc />
-            public int Compare(RouteDescriptor? x, RouteDescriptor? y)
+            int IComparer<RouteDescriptor>.Compare(RouteDescriptor? x, RouteDescriptor? y)
             {
                 return string.Compare(x?.Route, y?.Route, StringComparison.CurrentCulture);
             }

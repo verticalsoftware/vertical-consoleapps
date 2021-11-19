@@ -24,11 +24,12 @@ namespace Vertical.ConsoleApplications.Middleware
         }
         
         /// <inheritdoc />
-        public Task InvokeAsync(RequestContext context, 
+        public async Task InvokeAsync(RequestContext context, 
             PipelineDelegate<RequestContext> next, 
             CancellationToken cancellationToken)
         {
-            return _commandRouter.RouteAsync(_serviceProvider, context, cancellationToken);
+            await _commandRouter.RouteAsync(_serviceProvider, context, cancellationToken);
+            await next(context, cancellationToken);
         }
     }
 }
