@@ -6,7 +6,7 @@ A lightweight mini-framework for console applications with command support, depe
 ![GitHub](https://img.shields.io/github/license/verticalsoftware/vertical-consoleapps)
 ![Package info](https://img.shields.io/nuget/v/vertical-consoleapps.svg)
 
-[![Dev](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/dev-build.yml/badge.svg?branch=Dev)](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/dev-build.yml)
+[![Dev](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/dev-build.yml/badge.svg?branch=dev)](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/dev-build.yml)
 [![Pre release build and publish](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/pre-release.yml/badge.svg)](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/pre-release.yml)
 [![Release](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/release.yml/badge.svg?branch=Dev)](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/release.yml)
 [![codecov (dev)](https://codecov.io/gh/verticalsoftware/vertical-consoleapps/branch/Dev/graph/badge.svg?token=U9GBSP77J9)](https://codecov.io/gh/verticalsoftware/vertical-consoleapps)
