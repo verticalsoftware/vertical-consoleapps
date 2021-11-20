@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using Shouldly;
 using Vertical.ConsoleApplications.Pipeline;
@@ -14,7 +15,10 @@ public class CommandHandlerWrapperTests
     [Fact]
     public async Task HandleAsyncInvokesFunc()
     {
-        var context = new RequestContext(Array.Empty<string>(), Substitute.For<IServiceProvider>());
+        var context = new RequestContext(Array.Empty<string>(), 
+            new RequestItems(),
+            Substitute.For<IHostApplicationLifetime>(),
+            Substitute.For<IServiceProvider>());
         var cancelToken = CancellationToken.None;
         var invoked = false;
         var testInstance = new CommandHandlerWrapper((ctx, ct) =>
@@ -26,5 +30,7 @@ public class CommandHandlerWrapperTests
         });
 
         await testInstance.HandleAsync(context, cancelToken);
+        
+        invoked.ShouldBe(true);
     }
 }

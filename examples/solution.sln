@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandlerCommandRouting", "Ha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeatureSliceRouting", "FeatureSliceRouting\FeatureSliceRouting.csproj", "{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vertical.Pipelines.DependencyInjection", "..\..\vertical-pipelines-dependencyinjection\src\Vertical.Pipelines.DependencyInjection.csproj", "{F7F3E854-52E8-49E1-A962-A0C76B748F5E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,22 +130,9 @@ Global
 		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|x64.Build.0 = Release|Any CPU
 		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|x86.ActiveCfg = Release|Any CPU
 		{A7403FEA-FBA6-4C9C-80C2-93D7ED217973}.Release|x86.Build.0 = Release|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Debug|x64.Build.0 = Debug|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Debug|x86.Build.0 = Debug|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Release|x64.ActiveCfg = Release|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Release|x64.Build.0 = Release|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Release|x86.ActiveCfg = Release|Any CPU
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2344D87-4355-4B43-8F8F-DE3BBF34BCB6} = {C1717D8B-B603-44B0-950E-48C25D5031D6}
 		{420DE5BA-F310-450B-B399-E46F30C878BC} = {C1717D8B-B603-44B0-950E-48C25D5031D6}
-		{F7F3E854-52E8-49E1-A962-A0C76B748F5E} = {C1717D8B-B603-44B0-950E-48C25D5031D6}
 	EndGlobalSection
 EndGlobal

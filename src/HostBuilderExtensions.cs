@@ -45,19 +45,5 @@ namespace Vertical.ConsoleApplications
             
             return hostBuilder;
         }
-
-        /// <summary>
-        /// Hides logging produced by Microsoft and Vertical infrastructure.
-        /// </summary>
-        /// <param name="hostBuilder">Host builder</param>
-        /// <returns>A reference to the given host builder.</returns>
-        public static IHostBuilder HideDefaultLogging(this IHostBuilder hostBuilder)
-        {
-            hostBuilder.ConfigureServices(services => services.AddLogging(logging => logging
-                .AddFilter("Microsoft.*", _ => false)
-                .AddFilter("Vertical.*", _ => false)));
-            
-            return hostBuilder;
-        }
     }
 }

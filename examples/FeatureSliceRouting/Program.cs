@@ -14,7 +14,7 @@ namespace FeatureSliceRouting
         {
             var hostBuilder = ConsoleHostBuilder
                 .CreateDefault()
-                .HideDefaultLogging()
+                .ConfigureServices(services => services.AddLogging(logs => logs.ClearProviders()))
                 .ConfigureServices(services =>
                 {
                     services.AddCommandRouting();

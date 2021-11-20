@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications;
 
 namespace ArgumentProviders
@@ -13,7 +15,7 @@ namespace ArgumentProviders
             
             var hostBuilder = ConsoleHostBuilder
                 .CreateDefault()
-                .HideDefaultLogging()
+                .ConfigureServices(services => services.AddLogging(logs => logs.ClearProviders()))
                 .ConfigureProviders(providers =>
                 {
                     // Add input from environment vars

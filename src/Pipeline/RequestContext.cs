@@ -10,24 +10,22 @@ namespace Vertical.ConsoleApplications.Pipeline
     /// </summary>
     public class RequestContext
     {
-        private readonly Lazy<IHostApplicationLifetime> _lazyApplicationLifetime;
-        private readonly Lazy<RequestItems> _lazyRequestFeatures;
-        
         /// <summary>
         /// Creates a new instance of this type.
         /// </summary>
         /// <param name="arguments">Context arguments</param>
+        /// <param name="requestItems">Request items</param>
+        /// <param name="hostApplicationLifetime">Host application lifetime</param>
         /// <param name="services">Request service provider</param>
-        public RequestContext(string[] arguments, IServiceProvider services)
+        public RequestContext(string[] arguments,
+            RequestItems requestItems,
+            IHostApplicationLifetime hostApplicationLifetime, 
+            IServiceProvider services)
         {
             Arguments = arguments;
             Services = services;
-            
-            _lazyApplicationLifetime = new Lazy<IHostApplicationLifetime>(
-                () => services.GetRequiredService<IHostApplicationLifetime>());
-            
-            _lazyRequestFeatures = new Lazy<RequestItems>(
-                () => services.GetRequiredService<RequestItems>());
+            ApplicationLifetime = hostApplicationLifetime;
+            Items = requestItems;
         }
         
         /// <summary>
@@ -43,12 +41,12 @@ namespace Vertical.ConsoleApplications.Pipeline
         /// <summary>
         /// Gets the <see cref="IHostApplicationLifetime"/>.
         /// </summary>
-        public IHostApplicationLifetime ApplicationLifetime => _lazyApplicationLifetime.Value;
+        public IHostApplicationLifetime ApplicationLifetime { get; }
 
         /// <summary>
         /// Gets the current command request features.
         /// </summary>
-        public RequestItems Items => _lazyRequestFeatures.Value;
+        public RequestItems Items { get; }
 
         /// <summary>
         /// Gets the original format.

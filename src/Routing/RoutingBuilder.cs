@@ -11,11 +11,6 @@ namespace Vertical.ConsoleApplications.Routing
 {
     public class RoutingBuilder
     {
-        private static readonly ConstructorInfo ControllerConstructorInfo =
-            typeof(DecoratedMethodHandler<>)
-                .GetConstructors()
-                .First(ctor => ctor.GetParameters().Length == 2);
-        
         internal RoutingBuilder(IServiceCollection applicationServices)
         {
             ApplicationServices = applicationServices;
@@ -199,7 +194,7 @@ namespace Vertical.ConsoleApplications.Routing
         /// The assembly that contains implementations to map. If <code>null</code> is given
         /// then the calling assembly's types are scanned.
         /// </param>
-        /// <returns></returns>
+        /// <returns><see cref="RoutingBuilder"/></returns>
         public RoutingBuilder MapHandlers(Assembly? assembly = null)
         {
             assembly ??= Assembly.GetCallingAssembly();

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using Vertical.ConsoleApplications.Middleware;
 using Vertical.ConsoleApplications.Pipeline;
@@ -17,17 +18,19 @@ public class CommandRoutingMiddlewareTests
     {
         var router = Substitute.For<ICommandRouter>();
         var serviceProvider = Substitute.For<IServiceProvider>();
-        var testInstance = new CommandRoutingMiddleware(serviceProvider, router);
-        var context = new RequestContext(Array.Empty<string>(), serviceProvider);
+        var testInstance = new CommandRoutingMiddleware(router);
+        var context = new RequestContext(Array.Empty<string>(), 
+            new RequestItems(),
+            Substitute.For<IHostApplicationLifetime>(), serviceProvider);
         var next = new PipelineDelegate<RequestContext>((_, _) => Task.CompletedTask);
 
-        router.RouteAsync(serviceProvider, context, CancellationToken.None).Returns(Task.CompletedTask);
+        router.RouteAsync(context, CancellationToken.None).Returns(Task.CompletedTask);
         
         await testInstance.InvokeAsync(
             context,
             next,
             CancellationToken.None);
 
-        await router.Received(1).RouteAsync(serviceProvider, context, CancellationToken.None);
+        await router.Received(1).RouteAsync(context, CancellationToken.None);
     }
 }

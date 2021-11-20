@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Utilities;
@@ -35,21 +36,20 @@ namespace Vertical.ConsoleApplications.Routing
             _routeDescriptors = routeDescriptors
                 .OrderBy(dsc => dsc.Route)
                 .ToList();
-            
+
             _logger = logger;
         }
         
         /// <inheritdoc />
-        public Task RouteAsync(IServiceProvider serviceProvider,
-            RequestContext context, 
-            CancellationToken cancellationToken)
+        public Task RouteAsync(RequestContext context, CancellationToken cancellationToken)
         {
             var route = context.OriginalFormat;
+            var serviceProvider = context.Services;
             var handlerMatched = TryGetDescriptor(context.OriginalFormat, out var descriptor);
 
             if (!handlerMatched)
             {
-                _logger.LogInformation("No matching handler for command route '{route}'", route);
+                _logger?.LogInformation("No matching handler for command route '{route}'", route);
                 return Task.CompletedTask;
             }
 
@@ -58,7 +58,7 @@ namespace Vertical.ConsoleApplications.Routing
             
             context.Items.Set(descriptor);
 
-            _logger.LogInformation("Matched handler for command route '{route}' = {handler}",
+            _logger?.LogInformation("Matched handler for command route '{route}' = {handler}",
                 route,
                 handler);
             
@@ -69,7 +69,9 @@ namespace Vertical.ConsoleApplications.Routing
 
             var subContext = new RequestContext(
                 ArgumentHelpers.SplitFromString(trimmedFormat),
-                serviceProvider);
+                context.Items,
+                context.ApplicationLifetime,
+                context.Services);
 
             return handler.HandleAsync(subContext, cancellationToken);
         }

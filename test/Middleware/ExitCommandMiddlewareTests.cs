@@ -24,6 +24,8 @@ public class ExitCommandMiddlewareTests
             NullLogger<ExitCommandMiddleware>.Instance);
 
         await testInstance.InvokeAsync(new RequestContext(new[] { arg },
+                new RequestItems(),
+                Substitute.For<IHostApplicationLifetime>(),
                 Substitute.For<IServiceProvider>()),
             (_, _) => Task.CompletedTask,
             CancellationToken.None);

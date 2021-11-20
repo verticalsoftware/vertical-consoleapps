@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using Shouldly;
 using Vertical.ConsoleApplications.Middleware;
@@ -20,7 +21,7 @@ namespace Vertical.ConsoleApplications.Test.Middleware
                 color == "green" ? "pink" : color);
 
             await testInstance.InvokeAsync(
-                new RequestContext(args, serviceProvider),
+                new RequestContext(args, new RequestItems(), Substitute.For<IHostApplicationLifetime>(), serviceProvider),
                 (_, _) => Task.CompletedTask,
                 CancellationToken.None);
             

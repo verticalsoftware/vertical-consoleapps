@@ -14,7 +14,7 @@ namespace ArgumentPipeline
         {
             var hostBuilder = ConsoleHostBuilder
                 .CreateDefault()
-                .HideDefaultLogging()
+                .ConfigureServices(services => services.AddLogging(logs => logs.ClearProviders()))
                 .ConfigureProviders(providers =>
                 {
                     // Print help right away

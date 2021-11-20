@@ -19,5 +19,19 @@ namespace Vertical.ConsoleApplications.Test.Utilities
 
             TokenHelpers.IsCommandMatch(split, command).ShouldBeTrue();
         }
+
+        [Fact]
+        public void ReplaceEnvironmentVariablesReplacesSymbols()
+        {
+            var result = TokenHelpers.ReplaceEnvironmentVariables("Path is $PATH");
+            result.ShouldBe($"Path is {Environment.GetEnvironmentVariable("PATH")}");
+        }
+
+        [Fact]
+        public void ReplaceSpecialFolderTokensReplacesSymbols()
+        {
+            var result = TokenHelpers.ReplaceSpecialFolderPaths("Path is $ApplicationData");
+            result.ShouldBe($"Path is {Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}");
+        }
     }
 }

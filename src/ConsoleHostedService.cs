@@ -8,11 +8,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Providers;
-using Vertical.ConsoleApplications.Routing;
 using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications
 {
+    /// <summary>
+    /// Defines the hosted service implementation for the console application.
+    /// </summary>
     public class ConsoleHostedService : IHostedService
     {
         private readonly ILogger<ConsoleHostedService>? _logger;
@@ -21,6 +23,9 @@ namespace Vertical.ConsoleApplications
         private readonly IServiceProvider _serviceProvider;
         private readonly IEnumerable<IRequestInitializer> _requestInitializers;
 
+        /// <summary>
+        /// Creates a new instance of this type.
+        /// </summary>
         public ConsoleHostedService(
             IHostApplicationLifetime hostApplicationLifetime,
             IEnumerable<IArgumentsProvider> argumentsProviders,
@@ -48,7 +53,7 @@ namespace Vertical.ConsoleApplications
 
                     try
                     {
-                        await InvokeCommandProvidersAsync(cancelTokenSource);
+                        await InvokeCommandProvidersAsync(cancelTokenSource.Token);
                     }
                     catch (Exception exception)
                     {
@@ -64,10 +69,8 @@ namespace Vertical.ConsoleApplications
             return Task.CompletedTask;
         }
 
-        private async Task InvokeCommandProvidersAsync(CancellationTokenSource cts)
+        private async Task InvokeCommandProvidersAsync(CancellationToken cancellationToken)
         {
-            var cancellationToken = cts.Token;
-            
             foreach (var provider in _argumentsProviders.TakeWhile(_ => !cancellationToken.IsCancellationRequested))
             {
                 await provider.InvokeArgumentsAsync(async args =>
@@ -78,7 +81,7 @@ namespace Vertical.ConsoleApplications
 
                     var pipeline = pipelineFactory.CreatePipeline();
 
-                    var context = new RequestContext(args, scope.ServiceProvider);
+                    var context = new RequestContext(args, new RequestItems(), _hostApplicationLifetime , scope.ServiceProvider);
 
                     foreach (var initializer in _requestInitializers)
                     {
@@ -87,7 +90,7 @@ namespace Vertical.ConsoleApplications
 
                     await pipeline(context, cancellationToken);
 
-                }, cts.Token);
+                }, cancellationToken);
             }
         }
 

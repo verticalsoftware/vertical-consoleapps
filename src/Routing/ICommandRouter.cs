@@ -14,12 +14,9 @@ namespace Vertical.ConsoleApplications.Routing
         /// When implemented by a class, routes action based on command arguments to
         /// a pre-defined handler.
         /// </summary>
-        /// <param name="serviceProvider">Command request service provider</param>
         /// <param name="context">Current command context</param>
         /// <param name="cancellationToken">Token that can be observed for cancellation requests</param>
         /// <returns>Task</returns>
-        Task RouteAsync(IServiceProvider serviceProvider, 
-            RequestContext context, 
-            CancellationToken cancellationToken);
+        Task RouteAsync(RequestContext context, CancellationToken cancellationToken);
     }
 }
