@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Utilities;
@@ -63,9 +62,7 @@ namespace Vertical.ConsoleApplications.Routing
                 handler);
             
             // Make new arguments to trim off command
-            var trimmedFormat = context.OriginalFormat.Length > matchedRoute.Length
-                ? context.OriginalFormat[matchedRoute.Length..]
-                : context.OriginalFormat;
+            var trimmedFormat = context.OriginalFormat[matchedRoute.Length..];
 
             var subContext = new RequestContext(
                 ArgumentHelpers.SplitFromString(trimmedFormat),

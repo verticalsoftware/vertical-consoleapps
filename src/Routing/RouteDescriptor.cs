@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Vertical.ConsoleApplications.Routing
 {
@@ -30,6 +31,7 @@ namespace Vertical.ConsoleApplications.Routing
         /// </summary>
         /// <param name="route">Assigns the route</param>
         /// <param name="implementationFactory">Assigns the implementation factory</param>
+        [ExcludeFromCodeCoverage]
         public void Deconstruct(out string route, out Func<IServiceProvider, ICommandHandler> implementationFactory)
         {
             route = Route;
@@ -37,6 +39,7 @@ namespace Vertical.ConsoleApplications.Routing
         }
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public override string ToString() => Route;
     }
 }

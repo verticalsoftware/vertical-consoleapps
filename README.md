@@ -4,13 +4,12 @@ A lightweight mini-framework for console applications with command support, depe
 
 ![.net](https://img.shields.io/badge/Frameworks-.netstandard21+net5+net6-purple)
 ![GitHub](https://img.shields.io/github/license/verticalsoftware/vertical-consoleapps)
-![Package info](https://img.shields.io/nuget/v/vertical-consoleapps.svg)
+![Package info](https://img.shields.io/nuget/vpre/vertical-consoleapplications.svg)
 
 [![Dev](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/dev-build.yml/badge.svg?branch=dev)](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/dev-build.yml)
 [![Pre release build and publish](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/pre-release.yml/badge.svg)](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/pre-release.yml)
 [![Release](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/release.yml/badge.svg?branch=Dev)](https://github.com/verticalsoftware/vertical-consoleapps/actions/workflows/release.yml)
-[![codecov (dev)](https://codecov.io/gh/verticalsoftware/vertical-consoleapps/branch/Dev/graph/badge.svg?token=U9GBSP77J9)](https://codecov.io/gh/verticalsoftware/vertical-consoleapps)
-
+[![codecov](https://codecov.io/gh/verticalsoftware/vertical-consoleapps/branch/dev/graph/badge.svg?token=RSEBHCXJK5)](https://codecov.io/gh/verticalsoftware/vertical-consoleapps)
 ## Overview
 
 This library provides a base upon which to build feature-rich console applications using `IHostedService`, and provides an environment integrated with dependency injection and a configurable command pipeline.
