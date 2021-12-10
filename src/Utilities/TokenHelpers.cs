@@ -5,7 +5,7 @@ namespace Vertical.ConsoleApplications.Utilities
 {
     internal static class TokenHelpers
     {
-        private const string TokenPattern = @"(?<!\\)\$(\w+)";
+        private const string TokenPattern = @"(?<!\\)\$\((\w+)\)";
 
         internal static bool IsCommandMatch(string[] args, string command)
         {
