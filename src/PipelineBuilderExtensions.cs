@@ -132,7 +132,8 @@ namespace Vertical.ConsoleApplications
             this IPipelineBuilder<RequestContext> pipelineBuilder,
             Action<RoutingBuilder> configureRouting)
         {
-            configureRouting(new RoutingBuilder(pipelineBuilder.ApplicationServices));
+            configureRouting(new RoutingBuilder(pipelineBuilder));
+            
             return pipelineBuilder.UseMiddleware<CommandRoutingMiddleware>();
         }
     }

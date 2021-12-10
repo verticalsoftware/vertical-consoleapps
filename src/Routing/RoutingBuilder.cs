@@ -5,24 +5,43 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Vertical.ConsoleApplications.Middleware;
 using Vertical.ConsoleApplications.Pipeline;
+using Vertical.Pipelines.DependencyInjection;
 
 namespace Vertical.ConsoleApplications.Routing
 {
     public class RoutingBuilder
     {
-        internal RoutingBuilder(IServiceCollection applicationServices)
+        internal RoutingBuilder(IPipelineBuilder<RequestContext> applicationPipeline)
         {
-            ApplicationServices = applicationServices;
+            ApplicationPipeline = applicationPipeline;
+            ApplicationServices = applicationPipeline.ApplicationServices;
 
-            applicationServices.AddSingleton(serviceProvider => new HandlerMap(serviceProvider
+            ApplicationServices.AddSingleton(serviceProvider => new HandlerMap(serviceProvider
                 .GetServices<RouteDescriptor>()));
         }
+
+        /// <summary>
+        /// Gets the application pipeline.
+        /// </summary>
+        public IPipelineBuilder<RequestContext> ApplicationPipeline { get; }
 
         /// <summary>
         /// Gets the application's service collection.
         /// </summary>
         public IServiceCollection ApplicationServices { get; }
+
+        /// <summary>
+        /// Registers a delegate that can be used to handle routes that aren't matched.
+        /// </summary>
+        /// <param name="action">An action that receives the unmatched context.</param>
+        /// <returns>A reference to this instance.</returns>
+        public RoutingBuilder MapUnmatched(Action<RequestContext> action)
+        {
+            ApplicationPipeline.UseMiddleware(_ => new UnmatchedRouteMiddleware(action));
+            return this;
+        }
 
         /// <summary>
         /// Maps a command route to a handler implementation.
