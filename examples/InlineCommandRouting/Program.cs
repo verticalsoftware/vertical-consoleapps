@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -54,10 +55,19 @@ namespace InlineCommandRouting
                             .Map("max", (context, cancelToken) => PrintResult(context, Math.Max))
                             .Map("help", (_, _) =>
                             {
-                                Console.WriteLine("This program demonstrates inline routed commands by pretending to be a calculator.");
-                                Console.WriteLine("Type a command (add, sub, mul, div, pow, min, max) and two operands - e.g. add 2 5");
+                                Console.WriteLine(
+                                    "This program demonstrates inline routed commands by pretending to be a calculator.");
+                                Console.WriteLine(
+                                    "Type a command (add, sub, mul, div, pow, min, max) and two operands - e.g. add 2 5");
                                 Console.WriteLine("Type 'quit' or 'exit' to stop the application.");
                                 return Task.CompletedTask;
+                            })
+                            .MapUnmatched(context =>
+                            {
+                                var command = context.Arguments.FirstOrDefault();
+                                if (string.IsNullOrWhiteSpace(command))
+                                    return;
+                                Console.WriteLine($"Invalid command '{command}' - type help");
                             });
                     });
                 });

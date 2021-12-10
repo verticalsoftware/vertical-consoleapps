@@ -6,8 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using Shouldly;
+using Vertical.ConsoleApplications.Middleware;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Routing;
+using Vertical.Pipelines;
+using Vertical.Pipelines.DependencyInjection;
 using Xunit;
 
 namespace Vertical.ConsoleApplications.Test.Routing;
@@ -30,7 +33,8 @@ public class RoutingBuilderTests
             Task.CompletedTask;
     }
 
-    private readonly RoutingBuilder _testInstance = new RoutingBuilder(new ServiceCollection());
+    private readonly RoutingBuilder _testInstance = new RoutingBuilder(new PipelineBuilder<RequestContext>(
+        new ServiceCollection(), ServiceLifetime.Singleton));
 
     [Fact]
     public void MapPerformsRegistration()
@@ -93,6 +97,19 @@ public class RoutingBuilderTests
         handlers.Length.ShouldBe(2);
         handlers.First().Route.ShouldBe("route-a");
         handlers.Last().Route.ShouldBe("route-b");
+    }
+
+    [Fact]
+    public void MapUnmatchedAddsMiddleware()
+    {
+        var services = _testInstance
+            .MapUnmatched(_ => throw new InvalidOperationException())
+            .ApplicationServices
+            .BuildServiceProvider();
+
+        var middlewares = services.GetServices<IPipelineMiddleware<RequestContext>>();
+        
+        middlewares.Count(m => m is UnmatchedRouteMiddleware).ShouldBe(1);
     }
 
     private static RequestContext CreateContext()
