@@ -62,7 +62,7 @@ namespace InlineCommandRouting
                                 Console.WriteLine("Type 'quit' or 'exit' to stop the application.");
                                 return Task.CompletedTask;
                             })
-                            .MapUnmatched(context =>
+                            .MapUnmatchedRoutes(context =>
                             {
                                 var command = context.Arguments.FirstOrDefault();
                                 if (string.IsNullOrWhiteSpace(command))

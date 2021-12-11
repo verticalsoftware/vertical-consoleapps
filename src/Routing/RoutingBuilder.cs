@@ -37,7 +37,7 @@ namespace Vertical.ConsoleApplications.Routing
         /// </summary>
         /// <param name="action">An action that receives the unmatched context.</param>
         /// <returns>A reference to this instance.</returns>
-        public RoutingBuilder MapUnmatched(Action<RequestContext> action)
+        public RoutingBuilder MapUnmatchedRoutes(Action<RequestContext> action)
         {
             ApplicationPipeline.UseMiddleware(_ => new UnmatchedRouteMiddleware(action));
             return this;

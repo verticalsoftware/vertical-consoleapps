@@ -103,7 +103,7 @@ public class RoutingBuilderTests
     public void MapUnmatchedAddsMiddleware()
     {
         var services = _testInstance
-            .MapUnmatched(_ => throw new InvalidOperationException())
+            .MapUnmatchedRoutes(_ => throw new InvalidOperationException())
             .ApplicationServices
             .BuildServiceProvider();
 
