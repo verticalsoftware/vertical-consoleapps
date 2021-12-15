@@ -37,5 +37,13 @@
   <ItemGroup>
     <None Include="../assets/package-logo.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Services\ICommandHistory.cs" />
+  </ItemGroup>
   
 </Project>

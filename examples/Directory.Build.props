@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
         <Nullable>enable</Nullable>
+        <AppRuntime>net6.0</AppRuntime>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\Vertical.ConsoleApplications.csproj" />
