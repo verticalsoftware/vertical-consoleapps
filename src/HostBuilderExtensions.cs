@@ -1,7 +1,5 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Providers;
 using Vertical.Pipelines.DependencyInjection;

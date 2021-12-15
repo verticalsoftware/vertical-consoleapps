@@ -11,7 +11,7 @@
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">false</PublicSign>
     <Description>Command/routable console application framework</Description>
     <Authors>Vertical Software contributors</Authors>
-    <VersionPrefix>0.9.0</VersionPrefix>
+    <VersionPrefix>0.10.0</VersionPrefix>
     <PackageId>vertical-consoleapplications</PackageId>
     <PackageTags>commandline;utilities</PackageTags>
     <PackageProjectUrl>https://github.com/verticalsoftware/vertical-consoleapps</PackageProjectUrl>
@@ -36,14 +36,6 @@
 
   <ItemGroup>
     <None Include="../assets/package-logo.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Services\ICommandHistory.cs" />
   </ItemGroup>
   
 </Project>
