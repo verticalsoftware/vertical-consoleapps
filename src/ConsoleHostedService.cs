@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Vertical.ConsoleApplications.Pipeline;
 using Vertical.ConsoleApplications.Providers;
+using Vertical.ConsoleApplications.Services;
 using Vertical.Pipelines;
 
 namespace Vertical.ConsoleApplications
@@ -22,15 +23,17 @@ namespace Vertical.ConsoleApplications
         private readonly IEnumerable<IArgumentsProvider> _argumentsProviders;
         private readonly IServiceProvider _serviceProvider;
         private readonly IEnumerable<IRequestInitializer> _requestInitializers;
+        private readonly IStartupTaskRunner? _startupTaskRunner;
 
         /// <summary>
         /// Creates a new instance of this type.
         /// </summary>
         public ConsoleHostedService(
             IHostApplicationLifetime hostApplicationLifetime,
-            IEnumerable<IArgumentsProvider> argumentsProviders,
             IServiceProvider serviceProvider,
+            IEnumerable<IArgumentsProvider> argumentsProviders,
             IEnumerable<IRequestInitializer> requestInitializers,
+            IStartupTaskRunner? startupTaskRunner = null,
             ILogger<ConsoleHostedService>? logger = null)
         {
             _logger = logger;
@@ -38,6 +41,7 @@ namespace Vertical.ConsoleApplications
             _argumentsProviders = argumentsProviders;
             _serviceProvider = serviceProvider;
             _requestInitializers = requestInitializers;
+            _startupTaskRunner = startupTaskRunner;
         }
 
         /// <inheritdoc />
@@ -53,6 +57,11 @@ namespace Vertical.ConsoleApplications
 
                     try
                     {
+                        if (_startupTaskRunner != null)
+                        {
+                            await _startupTaskRunner.RunStartupTasksAsync();
+                        }
+                        
                         await InvokeCommandProvidersAsync(cancelTokenSource.Token);
                     }
                     catch (Exception exception)
