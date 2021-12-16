@@ -6,11 +6,9 @@ namespace Vertical.ConsoleApplications.Services
     internal class StartupTaskRunner : IStartupTaskRunner
     {
         private readonly IEnumerable<IStartupTask> _startupTasks;
-        private readonly string[] _entryArguments;
 
-        internal StartupTaskRunner(string[] entryArguments, IEnumerable<IStartupTask> startupTasks)
+        internal StartupTaskRunner(IEnumerable<IStartupTask> startupTasks)
         {
-            _entryArguments = entryArguments;
             _startupTasks = startupTasks;
         }
 
@@ -19,11 +17,9 @@ namespace Vertical.ConsoleApplications.Services
         /// </summary>
         public async Task RunStartupTasksAsync()
         {
-            var args = _entryArguments;
-            
             foreach (var startupTask in _startupTasks)
             {
-                await startupTask.InitializeAsync(args);
+                await startupTask.InitializeAsync();
             }
         }
     }

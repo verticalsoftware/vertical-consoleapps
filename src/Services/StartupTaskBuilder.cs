@@ -7,12 +7,11 @@ namespace Vertical.ConsoleApplications.Services
 {
     public class StartupTaskBuilder
     {
-        internal StartupTaskBuilder(IServiceCollection applicationServices, string[] args)
+        internal StartupTaskBuilder(IServiceCollection applicationServices)
         {
             ApplicationServices = applicationServices;
 
             ApplicationServices.TryAddSingleton(provider => new StartupTaskRunner(
-                args,
                 provider.GetServices<IStartupTask>()));
         }
 
@@ -37,9 +36,9 @@ namespace Vertical.ConsoleApplications.Services
         /// </summary>
         /// <param name="action">Delegate that handles the startup action</param>
         /// <returns>A reference to this instance</returns>
-        public StartupTaskBuilder AddAction(Func<string[], Task> action)
+        public StartupTaskBuilder AddAction(Func<Task> action)
         {
-            return AddAction((_, args) => action(args));
+            return AddAction(_ => action());
         }
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace Vertical.ConsoleApplications.Services
         /// </summary>
         /// <param name="action">Delegate that handles the startup action</param>
         /// <returns>A reference to this instance</returns>
-        public StartupTaskBuilder AddAction(Func<IServiceProvider, string[], Task> action)
+        public StartupTaskBuilder AddAction(Func<IServiceProvider, Task> action)
         {
             ApplicationServices.AddSingleton<IStartupTask>(serviceProvider => new StartupTaskWrapper(
                 serviceProvider,
