@@ -10,8 +10,7 @@ namespace Vertical.ConsoleApplications.Services
         /// <summary>
         /// When implemented by a class, performs initialization work.
         /// </summary>
-        /// <param name="args">Application entry arguments</param>
         /// <returns>Task that completes when the initialization work is finished.</returns>
-        Task InitializeAsync(string[] args);
+        Task InitializeAsync();
     }
 }

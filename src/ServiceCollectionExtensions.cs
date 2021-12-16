@@ -58,14 +58,12 @@ namespace Vertical.ConsoleApplications
         /// happen when the host starts up.
         /// </summary>
         /// <param name="serviceCollection">Service collection</param>
-        /// <param name="entryArguments">Application entry arguments</param>
         /// <param name="configureStartup">An action that performs the configuration of startup tasks</param>
         /// <returns>A reference to the given service collection</returns>
         public static IServiceCollection AddStartupTasks(this IServiceCollection serviceCollection,
-            string[] entryArguments,
             Action<StartupTaskBuilder> configureStartup)
         {
-            configureStartup(new StartupTaskBuilder(serviceCollection, entryArguments));
+            configureStartup(new StartupTaskBuilder(serviceCollection));
             return serviceCollection;
         }
     }

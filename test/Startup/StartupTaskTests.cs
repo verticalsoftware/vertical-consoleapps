@@ -20,7 +20,7 @@ public class StartupTaskTests
         }
 
         /// <inheritdoc />
-        public Task InitializeAsync(string[] args)
+        public Task InitializeAsync()
         {
             _service["startup-3"] = true;
             return Task.CompletedTask;
@@ -31,22 +31,19 @@ public class StartupTaskTests
     public async Task StartupTasksInvoked()
     {
         var service = new Dictionary<string, bool>();
-        var entryArguments = new[] { "arg-1", "arg-2" };
 
         var services = new ServiceCollection()
             .AddSingleton(service)
-            .AddStartupTasks(entryArguments, startup =>
+            .AddStartupTasks(startup =>
             {
                 startup
                     .AddAction(args =>
                     {
-                        args.ShouldBe(entryArguments);
                         service["action-1"] = true;
                         return Task.CompletedTask;
                     })
-                    .AddAction((sp, args) =>
+                    .AddAction(sp =>
                     {
-                        args.ShouldBe(entryArguments);
                         sp.GetRequiredService<Dictionary<string, bool>>()["action-2"] = true;
                         return Task.CompletedTask;
                     })
